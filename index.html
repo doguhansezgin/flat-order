@@ -261,6 +261,16 @@
   </div>
 </div>
 
+<!-- ONAY BEKLİYOR -->
+<div id="pending-screen" style="display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;z-index:200">
+  <div style="background:#FFFFFF;border-radius:20px;padding:48px 40px;max-width:420px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.1)">
+    <div style="font-size:56px;margin-bottom:16px">⏳</div>
+    <div style="font-size:22px;font-weight:700;margin-bottom:10px">Onay Bekleniyor</div>
+    <div style="color:var(--text-soft);font-size:14px;margin-bottom:28px;line-height:1.6">Kaydınız alındı. Yönetici hesabınızı onayladıktan sonra sisteme erişebileceksiniz.</div>
+    <button onclick="doLogout()" style="background:var(--text);color:white;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer">Çıkış Yap</button>
+  </div>
+</div>
+
 <div class="success-overlay" id="success-overlay">
   <div class="success-box">
     <div class="success-icon">✅</div>
@@ -376,9 +386,10 @@ window.doRegister = async function() {
     await setDoc(doc(db, 'users', cred.user.uid), {
       uid: cred.user.uid, cafe, name, phone, email,
       createdAt: new Date().toISOString(),
-      orderCount: 0, totalSpent: 0
+      orderCount: 0, totalSpent: 0,
+      approved: false
     });
-    showAuthInfo('Kayıt başarılı! Hoşgeldiniz 🎉');
+    showAuthInfo('Kaydınız alındı! Yönetici onayından sonra giriş yapabileceksiniz. 🎉');
   } catch(e) {
     const msgs = { 'auth/email-already-in-use': 'Bu e-posta zaten kayıtlı.', 'auth/weak-password': 'Şifre çok zayıf.' };
     showAuthErr(msgs[e.code] || 'Kayıt başarısız: ' + e.message);
@@ -399,7 +410,8 @@ window.doGoogleLogin = async function() {
         phone: user.phoneNumber || '',
         email: user.email,
         createdAt: new Date().toISOString(),
-        orderCount: 0, totalSpent: 0
+        orderCount: 0, totalSpent: 0,
+        approved: false
       });
     }
   } catch(e) {
@@ -411,6 +423,9 @@ window.doLogout = async function() {
   await signOut(auth);
   cart = {};
   updateCartBadge();
+  document.getElementById('pending-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
 }
 
 // =====================
@@ -433,7 +448,18 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById('btn-admin').style.display = 'inline-block';
     }
 
+    // Admin değilse onay kontrolü
+    if (!ADMIN_EMAILS.includes(user.email)) {
+      if (userProfile && userProfile.approved === false) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('pending-screen').style.display = 'flex';
+        return;
+      }
+    }
+
     document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('pending-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
 
     startListeners();
@@ -1064,7 +1090,7 @@ window.addUserByAdmin = async function() {
     await setDoc(doc(db, 'users', cred.user.uid), {
       uid: cred.user.uid, cafe, name, phone, email,
       createdAt: new Date().toISOString(),
-      orderCount: 0, totalSpent: 0, addedByAdmin: true
+      orderCount: 0, totalSpent: 0, addedByAdmin: true, approved: true
     });
     errEl.style.display = 'none';
     showToast(`${cafe} üyesi oluşturuldu ✓`);
@@ -1181,26 +1207,55 @@ window.renderAdminUsers = async function() {
   const el = document.getElementById('admin-users');
   el.innerHTML = `<div class="loading"><div class="spinner"></div><br>Yükleniyor...</div>`;
   const snap = await getDocs(collection(db, 'users'));
-  const users = snap.docs.map(d => d.data());
+  const users = snap.docs.map(d => ({docId: d.id, ...d.data()}));
   el.innerHTML = `
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num">${users.length}</div><div class="stat-label">Kayıtlı Müşteri</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${users.filter(u=>u.approved===false).length}</div><div class="stat-label">Onay Bekleyen</div></div>
       <div class="stat-card"><div class="stat-num">${allOrders.length}</div><div class="stat-label">Toplam Sipariş</div></div>
     </div>
     <table class="user-table">
-      <thead><tr><th>Kafe / Şube</th><th>Yetkili</th><th>Telefon</th><th>E-posta</th><th>Sipariş</th><th>Harcama</th><th>Kayıt</th></tr></thead>
+      <thead><tr><th>Durum</th><th>Kafe / Şube</th><th>Yetkili</th><th>Telefon</th><th>E-posta</th><th>Sipariş</th><th>Harcama</th><th>Kayıt</th><th>İşlem</th></tr></thead>
       <tbody>
-        ${users.map(u=>`<tr>
-          <td><b>${u.cafe||'-'}</b></td>
-          <td>${u.name||'-'}</td>
-          <td>${u.phone||'-'}</td>
-          <td>${u.email||'-'}</td>
+        ${users.sort((a,b) => (a.approved===false?-1:1)).map(u=>`<tr id="userrow-${u.uid}" style="${u.approved===false?'background:#fffbeb;':''}">
+          <td>${u.approved===false ? '<span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">⏳ Bekliyor</span>' : '<span style="background:#dcfce7;color:#166534;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">✅ Onaylı</span>'}</td>
+          <td><input value="${u.cafe||''}" id="ue-cafe-${u.uid}" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;width:130px"></td>
+          <td><input value="${u.name||''}" id="ue-name-${u.uid}" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;width:110px"></td>
+          <td><input value="${u.phone||''}" id="ue-phone-${u.uid}" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;width:120px"></td>
+          <td style="font-size:12px;color:var(--text-soft)">${u.email||'-'}</td>
           <td>${u.orderCount||0}</td>
           <td>₺${(u.totalSpent||0).toLocaleString('tr-TR')}</td>
-          <td style="font-size:11px;color:#888">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('tr-TR') : '-'}</td>
+          <td style="font-size:11px;color:var(--text-soft)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('tr-TR') : '-'}</td>
+          <td style="display:flex;gap:4px;flex-wrap:wrap">
+            ${u.approved===false ? `<button onclick="approveUser('${u.uid}')" style="background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">✅ Onayla</button>` : ''}
+            <button class="save-btn" onclick="saveUser('${u.uid}')">💾</button>
+            <button class="del-btn" onclick="deleteUser('${u.uid}', '${u.cafe}')">🗑️</button>
+          </td>
         </tr>`).join('')}
       </tbody>
     </table>`;
+}
+
+window.approveUser = async function(uid) {
+  await updateDoc(doc(db, 'users', uid), { approved: true });
+  showToast('Kullanıcı onaylandı ✓');
+  renderAdminUsers();
+}
+
+window.saveUser = async function(uid) {
+  const cafe = document.getElementById('ue-cafe-'+uid).value.trim();
+  const name = document.getElementById('ue-name-'+uid).value.trim();
+  const phone = document.getElementById('ue-phone-'+uid).value.trim();
+  if (!cafe || !name) { alert('Kafe adı ve yetkili adı zorunlu.'); return; }
+  await updateDoc(doc(db, 'users', uid), { cafe, name, phone });
+  showToast('Müşteri güncellendi ✓');
+}
+
+window.deleteUser = async function(uid, cafe) {
+  if (!confirm((cafe||'Bu müşteri') + ' silinecek. Siparişleri kalacak. Emin misiniz?')) return;
+  await deleteDoc(doc(db, 'users', uid));
+  showToast('Müşteri silindi');
+  renderAdminUsers();
 }
 
 // Seed
