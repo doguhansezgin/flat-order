@@ -250,12 +250,14 @@
       <button class="admin-tab" onclick="switchAdminTab('products', this)">📦 Ürünler</button>
       <button class="admin-tab" onclick="switchAdminTab('stock', this)">📊 Stok</button>
       <button class="admin-tab" onclick="switchAdminTab('users', this)">👥 Müşteriler</button>
+      <button class="admin-tab" onclick="switchAdminTab('reports', this)">📈 Raporlar</button>
     </div>
     <div id="admin-orders"></div>
     <div id="admin-neworder" style="display:none"></div>
     <div id="admin-products" style="display:none"></div>
     <div id="admin-stock" style="display:none"></div>
     <div id="admin-users" style="display:none"></div>
+    <div id="admin-reports" style="display:none"></div>
   </div>
 </div>
 
@@ -299,7 +301,7 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 const ADMIN_PW = "1234"; // ← Admin şifresi
-const ADMIN_EMAILS = ["doguhansezgin@gmail.com"];
+const ADMIN_EMAILS = ["doguhansezgin@gmail.com", "55onurberber@gmail.com"];
 
 let currentUser = null;
 let userProfile = null;
@@ -677,7 +679,7 @@ window.switchAdminTab = function(tab, btn) {
   adminTab = tab;
   document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['orders','neworder','products','stock','users'].forEach(t => {
+  ['orders','neworder','products','stock','users','reports'].forEach(t => {
     document.getElementById('admin-' + t).style.display = t === tab ? 'block' : 'none';
   });
   if (tab === 'orders') renderAdminOrders();
@@ -685,6 +687,7 @@ window.switchAdminTab = function(tab, btn) {
   if (tab === 'products') renderAdminProducts();
   if (tab === 'stock') renderAdminStock();
   if (tab === 'users') renderAdminUsers();
+  if (tab === 'reports') renderAdminReports();
 }
 
 window.renderAdminOrders = function() {
@@ -804,6 +807,54 @@ window.deleteProduct = async function(id) {
 // =====================
 // ADMIN - STOK
 // =====================
+// =====================
+// STOK GİRİŞİ (FIFO)
+// =====================
+window.addStockEntry = async function(productId) {
+  const qty = parseInt(document.getElementById('se-qty-'+productId).value);
+  const cost = parseFloat(document.getElementById('se-cost-'+productId).value);
+  if (!qty || !cost) { alert('Miktar ve alış fiyatı girin.'); return; }
+  await addDoc(collection(db, 'stockEntries'), {
+    productId, qty, remaining: qty, cost,
+    date: new Date().toISOString(),
+    dateStr: new Date().toLocaleDateString('tr-TR')
+  });
+  document.getElementById('se-qty-'+productId).value = '';
+  document.getElementById('se-cost-'+productId).value = '';
+  showToast('Stok girişi kaydedildi ✓');
+  renderAdminStock();
+}
+
+// FIFO maliyet hesapla
+async function calcFIFOCost(productId, qty) {
+  const allSnap = await getDocs(collection(db, 'stockEntries'));
+  const entries = allSnap.docs
+    .map(d => ({id: d.id, ...d.data()}))
+    .filter(e => e.productId === productId && (e.remaining ?? e.qty) > 0)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  
+  let remaining = qty;
+  let totalCost = 0;
+  const breakdown = [];
+  
+  for (const entry of entries) {
+    if (remaining <= 0) break;
+    const take = Math.min(remaining, entry.remaining);
+    totalCost += take * entry.cost;
+    breakdown.push({ qty: take, cost: entry.cost });
+    remaining -= take;
+  }
+  
+  // Kalan stok yoksa son bilinen maliyetle tahmin et
+  if (remaining > 0 && entries.length > 0) {
+    const lastCost = entries[entries.length - 1].cost;
+    totalCost += remaining * lastCost;
+    breakdown.push({ qty: remaining, cost: lastCost, estimated: true });
+  }
+  
+  return { totalCost, breakdown, avgCost: qty > 0 ? totalCost / qty : 0 };
+}
+
 window.renderAdminStock = function() {
   const el = document.getElementById('admin-stock');
   const sorted = [...products].sort((a,b)=>(a.stock??0)-(b.stock??0));
@@ -820,12 +871,25 @@ window.renderAdminStock = function() {
       ${low.map(p=>`<div style="font-size:13px;color:#78350f;margin-bottom:4px">${p.emoji} ${p.name} <span class="code-tag">#${p.code}</span> — ${p.stock<=0?'<b>Tükendi!</b>':`Kalan: <b>${p.stock}</b>`}</div>`).join('')}
     </div>`:''}
     <table class="prod-table">
-      <thead><tr><th>Kod</th><th>Ürün</th><th>Stok</th><th>Durum</th><th>Güncelle</th></tr></thead>
+      <thead><tr><th>Kod</th><th>Ürün</th><th>Mevcut Stok</th><th>Durum</th><th>Stok Girişi (Alış)</th><th>Güncelle</th></tr></thead>
       <tbody>
         ${sorted.map(p=>{
           const s=p.stock??0;
           const d=s<=0?'<span style="color:#ef4444;font-weight:700">Tükendi</span>':s<=5?'<span style="color:var(--accent);font-weight:700">Kritik</span>':s<=10?'<span style="color:#f59e0b;font-weight:700">Az</span>':'<span style="color:#22c55e;font-weight:700">Normal</span>';
-          return `<tr><td><span class="code-tag">#${p.code}</span></td><td>${p.emoji||'📦'} ${p.name}</td><td><input class="edit-input" type="number" value="${s}" id="stk-${p.id}"></td><td>${d}</td><td><button class="save-btn" onclick="updateStock('${p.id}')">💾 Kaydet</button></td></tr>`;
+          return `<tr>
+            <td><span class="code-tag">#${p.code}</span></td>
+            <td>${p.emoji||'📦'} ${p.name}</td>
+            <td><input class="edit-input" type="number" value="${s}" id="stk-${p.id}"></td>
+            <td>${d}</td>
+            <td>
+              <div style="display:flex;gap:4px;align-items:center">
+                <input class="edit-input" type="number" id="se-qty-${p.id}" placeholder="Adet" style="width:60px">
+                <input class="edit-input" type="number" id="se-cost-${p.id}" placeholder="₺/adet" style="width:70px">
+                <button class="save-btn" onclick="addStockEntry('${p.id}')">+ Giriş</button>
+              </div>
+            </td>
+            <td><button class="save-btn" onclick="updateStock('${p.id}')">💾</button></td>
+          </tr>`;
         }).join('')}
       </tbody>
     </table>`;
@@ -1005,6 +1069,100 @@ window.addUserByAdmin = async function() {
     errEl.textContent = msgs[e.code] || e.message;
     errEl.style.display = 'block';
   }
+}
+
+// =====================
+// ADMIN - RAPORLAR
+// =====================
+window.renderAdminReports = async function() {
+  const el = document.getElementById('admin-reports');
+  el.innerHTML = `<div class="loading"><div class="spinner"></div><br>Raporlar hesaplanıyor...</div>`;
+  
+  // Tüm stok girişlerini al
+  const stockSnap = await getDocs(collection(db, 'stockEntries'));
+  const stockEntries = stockSnap.docs.map(d => ({id: d.id, ...d.data()}));
+  
+  // Tamamlanan siparişler
+  const completedOrders = allOrders.filter(o => o.status === 'tamamlandi');
+  
+  let totalRevenue = 0, totalCost = 0, totalProfit = 0;
+  
+  // Her sipariş için kar hesapla
+  const orderReports = await Promise.all(completedOrders.map(async o => {
+    let orderCost = 0;
+    let orderRevenue = o.total;
+    const itemDetails = [];
+    
+    for (const item of o.items) {
+      const fifo = await calcFIFOCost(item.id, item.qty);
+      const itemRevenue = item.price * item.qty;
+      const itemProfit = itemRevenue - fifo.totalCost;
+      orderCost += fifo.totalCost;
+      itemDetails.push({
+        ...item,
+        revenue: itemRevenue,
+        cost: fifo.totalCost,
+        profit: itemProfit,
+        margin: itemRevenue > 0 ? ((itemProfit/itemRevenue)*100).toFixed(1) : 0,
+        breakdown: fifo.breakdown
+      });
+    }
+    
+    const orderProfit = orderRevenue - orderCost;
+    totalRevenue += orderRevenue;
+    totalCost += orderCost;
+    totalProfit += orderProfit;
+    
+    return { ...o, orderCost, orderProfit, itemDetails };
+  }));
+  
+  const margin = totalRevenue > 0 ? ((totalProfit/totalRevenue)*100).toFixed(1) : 0;
+  
+  el.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺${totalRevenue.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Ciro</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#ef4444">₺${totalCost.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Maliyet</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">₺${totalProfit.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Kar</div></div>
+      <div class="stat-card"><div class="stat-num">%${margin}</div><div class="stat-label">Kar Marjı</div></div>
+    </div>
+    
+    ${orderReports.length === 0 ? '<div class="no-orders">📊<br><br>Henüz tamamlanan sipariş yok</div>' :
+      orderReports.map(o => `
+        <div class="order-card tamamlandi" style="margin-bottom:16px">
+          <div class="order-meta">
+            <div><span class="order-num">${o.num}</span> <span class="status-badge badge-tamamlandi">Tamamlandı</span></div>
+            <div class="order-date">${o.date}</div>
+          </div>
+          <div style="font-weight:600;font-size:13px;color:#444;margin-bottom:10px">🏪 ${o.cafe}</div>
+          
+          <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px">
+            <thead>
+              <tr style="background:var(--surface)">
+                <th style="padding:8px;text-align:left;border-radius:6px 0 0 6px">Ürün</th>
+                <th style="padding:8px;text-align:right">Adet</th>
+                <th style="padding:8px;text-align:right">Satış</th>
+                <th style="padding:8px;text-align:right">Maliyet</th>
+                <th style="padding:8px;text-align:right;border-radius:0 6px 6px 0">Kar</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${o.itemDetails.map(i => `
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:8px">${i.name}</td>
+                  <td style="padding:8px;text-align:right">${i.qty}</td>
+                  <td style="padding:8px;text-align:right">₺${i.revenue.toLocaleString('tr-TR')}</td>
+                  <td style="padding:8px;text-align:right;color:#ef4444">₺${i.cost.toLocaleString('tr-TR',{maximumFractionDigits:2})}</td>
+                  <td style="padding:8px;text-align:right;font-weight:700;color:${i.profit>=0?'#22c55e':'#ef4444'}">₺${i.profit.toLocaleString('tr-TR',{maximumFractionDigits:2})} <span style="font-size:10px;color:var(--text-soft)">(${i.margin}%)</span></td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+          
+          <div style="display:flex;justify-content:space-between;padding:10px;background:var(--surface);border-radius:8px;font-weight:700">
+            <span>Sipariş Karı</span>
+            <span style="color:${o.orderProfit>=0?'#22c55e':'#ef4444'}">₺${o.orderProfit.toLocaleString('tr-TR',{maximumFractionDigits:2})} <span style="font-size:12px;font-weight:400;color:var(--text-soft)">(${o.total>0?((o.orderProfit/o.total)*100).toFixed(1):0}% marj)</span></span>
+          </div>
+        </div>`).join('')
+    }`;
 }
 
 // =====================
