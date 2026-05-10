@@ -726,12 +726,15 @@ window.renderAdminOrders = function() {
           <div style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.7">${o.items.map(i=>`<span class="code-tag">#${i.code}</span> ${i.name} ×${i.qty} = ₺${i.price*i.qty}`).join(' | ')}</div>
           ${o.note?`<div style="font-size:12px;color:#888;margin-bottom:8px">📝 ${o.note}</div>`:''}
           <div style="font-weight:700;margin-bottom:10px">Toplam: ₺${o.total}</div>
-          <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
-            <option value="bekliyor" ${o.status==='bekliyor'?'selected':''}>⏳ Bekliyor</option>
-            <option value="hazirlaniyor" ${o.status==='hazirlaniyor'?'selected':''}>🔄 Hazırlanıyor</option>
-            <option value="tamamlandi" ${o.status==='tamamlandi'?'selected':''}>✅ Tamamlandı</option>
-            <option value="iptal" ${o.status==='iptal'?'selected':''}>❌ İptal</option>
-          </select>
+          <div style="display:flex;align-items:center;gap:8px">
+            <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
+              <option value="bekliyor" ${o.status==='bekliyor'?'selected':''}>⏳ Bekliyor</option>
+              <option value="hazirlaniyor" ${o.status==='hazirlaniyor'?'selected':''}>🔄 Hazırlanıyor</option>
+              <option value="tamamlandi" ${o.status==='tamamlandi'?'selected':''}>✅ Tamamlandı</option>
+              <option value="iptal" ${o.status==='iptal'?'selected':''}>❌ İptal</option>
+            </select>
+            <button onclick="deleteOrder('${o.id}', '${o.num}')" style="background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">🗑️ Sil</button>
+          </div>
         </div>`).join('')}`;
   if (filterStatus !== 'hepsi') document.getElementById('filter-status').value = filterStatus;
 }
@@ -739,6 +742,12 @@ window.renderAdminOrders = function() {
 window.updateOrderStatus = async function(id, status) {
   await updateDoc(doc(db, 'orders', id), { status });
   showToast('Durum güncellendi ✓');
+}
+
+window.deleteOrder = async function(id, num) {
+  if (!confirm(num + ' nolu siparişi silmek istediğinize emin misiniz?')) return;
+  await deleteDoc(doc(db, 'orders', id));
+  showToast('Sipariş silindi');
 }
 
 // =====================
