@@ -554,9 +554,8 @@ window.renderCatalog = function() {
     const outOfStock = !p.unstocked && s <= 0;
     const lowStock = !p.unstocked && s > 0 && s <= 5;
     let stockBadge = '';
-    if (p.unstocked) stockBadge = `<div class="stock-badge" style="background:#ede9e0;color:#78716c">Stoksuz</div>`;
-    else if (outOfStock) stockBadge = `<div class="stock-badge out">Tükendi</div>`;
-    else if (lowStock) stockBadge = `<div class="stock-badge low">Son ${s}</div>`;
+    if (!p.unstocked && outOfStock) stockBadge = `<div class="stock-badge out">Tükendi</div>`;
+    else if (!p.unstocked && lowStock) stockBadge = `<div class="stock-badge low">Son ${s}</div>`;
     return `<div class="product-card ${outOfStock ? 'out-of-stock' : ''}">
       ${stockBadge}
       <div class="product-emoji">${p.emoji || '📦'}</div>
