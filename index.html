@@ -792,6 +792,26 @@ window.updateOrderStatus = async function(id, status) {
 
 window.deleteOrder = async function(id, num) {
   if (!confirm(num + ' nolu siparişi silmek istediğinize emin misiniz?')) return;
+  // Tamamlanmış siparişse stok geri koy
+  const order = allOrders.find(o => o.id === id);
+  if (order && order.status === 'tamamlandi') {
+    for (const item of order.items) {
+      const p = products.find(x => x.id === item.id);
+      if (p) await updateDoc(doc(db, 'products', item.id), { stock: (p.stock||0) + item.qty });
+    }
+    // Kullanıcı istatistiklerini geri al
+    if (order.uid) {
+      const uRef = doc(db, 'users', order.uid);
+      const uSnap = await getDoc(uRef);
+      if (uSnap.exists()) {
+        const ud = uSnap.data();
+        await updateDoc(uRef, {
+          orderCount: Math.max(0, (ud.orderCount||0) - 1),
+          totalSpent: Math.max(0, (ud.totalSpent||0) - order.total)
+        });
+      }
+    }
+  }
   await deleteDoc(doc(db, 'orders', id));
   showToast('Sipariş silindi');
 }
