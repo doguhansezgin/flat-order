@@ -912,68 +912,84 @@ window.renderAdminStock = function() {
       <div style="font-weight:700;margin-bottom:8px;color:#92400e">⚠️ Kritik Stok</div>
       ${low.map(p=>`<div style="font-size:13px;color:#78350f;margin-bottom:4px">${p.emoji} ${p.name} <span class="code-tag">#${p.code}</span> — ${p.stock<=0?'<b>Tükendi!</b>':`Kalan: <b>${p.stock}</b>`}</div>`).join('')}
     </div>`:''}
-    <table class="prod-table">
-      <thead><tr><th>Kod</th><th>Ürün</th><th>Mevcut Stok</th><th>Durum</th><th>Stok Girişi (Alış)</th><th>Güncelle</th></tr></thead>
-      <tbody>
-        ${sorted.map(p=>{
-          const s=p.stock??0;
-          const d=s<=0?'<span style="color:#ef4444;font-weight:700">Tükendi</span>':s<=5?'<span style="color:var(--accent);font-weight:700">Kritik</span>':s<=10?'<span style="color:#f59e0b;font-weight:700">Az</span>':'<span style="color:#22c55e;font-weight:700">Normal</span>';
-          return `<tr>
-            <td><span class="code-tag">#${p.code}</span></td>
-            <td>${p.emoji||'📦'} ${p.name}</td>
-            <td><input class="edit-input" type="number" value="${s}" id="stk-${p.id}"></td>
-            <td>${d}</td>
-            <td>
-              <div style="display:flex;gap:4px;align-items:center">
-                <input class="edit-input" type="number" id="se-qty-${p.id}" placeholder="Adet" style="width:60px">
-                <input class="edit-input" type="number" id="se-cost-${p.id}" placeholder="₺/adet" style="width:70px">
-                <button class="save-btn" onclick="addStockEntry('${p.id}')">+ Giriş</button>
-              </div>
-            </td>
-            <td><button class="save-btn" onclick="updateStock('${p.id}')">💾</button></td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>
-    <div style="margin-top:28px">
-      <div class="section-title">📋 Alış Geçmişi</div>
-      <div id="stock-history"><div class="loading"><div class="spinner"></div><br>Yükleniyor...</div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${sorted.map(p=>{
+        const s=p.stock??0;
+        const d=s<=0?'<span style="background:#fee2e2;color:#991b1b;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">Tükendi</span>':s<=5?'<span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">Kritik</span>':s<=10?'<span style="background:#fef3c7;color:#b45309;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">Az</span>':'<span style="background:#dcfce7;color:#166534;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">Normal</span>';
+        return `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);overflow:hidden">
+          <!-- BAŞLIK SATIRI -->
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer" onclick="toggleStockRow('${p.id}')">
+            <span style="font-size:24px">${p.emoji||'📦'}</span>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:14px">${p.name} <span class="code-tag">#${p.code}</span></div>
+              <div style="font-size:12px;color:var(--text-soft);margin-top:2px">Satış: <b>₺${p.price}</b> &nbsp;|&nbsp; Stok: <b>${s} adet</b> &nbsp;|&nbsp; ${d}</div>
+            </div>
+            <!-- STOK GİRİŞİ -->
+            <div style="display:flex;gap:6px;align-items:center" onclick="event.stopPropagation()">
+              <input class="edit-input" type="number" id="se-qty-${p.id}" placeholder="Adet" style="width:65px">
+              <input class="edit-input" type="number" id="se-cost-${p.id}" placeholder="₺/adet" style="width:75px">
+              <button class="save-btn" onclick="addStockEntry('${p.id}')">+ Giriş</button>
+              <button class="save-btn" onclick="event.stopPropagation();updateStock('${p.id}')" style="display:none" id="upd-${p.id}">💾</button>
+            </div>
+            <span id="arrow-${p.id}" style="font-size:18px;color:var(--text-soft);transition:transform 0.2s;display:inline-block">▾</span>
+          </div>
+          <!-- AÇILAN GEÇMİŞ ALANI -->
+          <div id="history-${p.id}" style="display:none;border-top:1px solid var(--border);padding:0 18px 14px">
+            <div style="color:var(--text-soft);font-size:12px;padding:10px 0 8px;font-weight:600">Alış Geçmişi</div>
+            <div id="history-content-${p.id}"><div style="color:var(--text-soft);font-size:13px">Yükleniyor...</div></div>
+          </div>
+        </div>`;
+      }).join('')}
     </div>`;
   renderStockHistory();
 }
 
 window.updateStock = async function(id) {
-  const stock = parseInt(document.getElementById('stk-'+id).value)||0;
+  const stock = parseInt(document.getElementById('stk-'+id)?.value)||0;
   await updateDoc(doc(db,'products',id), { stock });
   showToast('Stok güncellendi ✓');
 }
 
-window.renderStockHistory = async function() {
-  const el = document.getElementById('stock-history');
+window.toggleStockRow = async function(productId) {
+  const historyEl = document.getElementById('history-'+productId);
+  const arrowEl = document.getElementById('arrow-'+productId);
+  if (!historyEl) return;
+  const isOpen = historyEl.style.display !== 'none';
+  if (isOpen) {
+    historyEl.style.display = 'none';
+    arrowEl.style.transform = 'rotate(0deg)';
+  } else {
+    historyEl.style.display = 'block';
+    arrowEl.style.transform = 'rotate(180deg)';
+    await loadProductStockHistory(productId);
+  }
+}
+
+window.loadProductStockHistory = async function(productId) {
+  const el = document.getElementById('history-content-'+productId);
   if (!el) return;
   const snap = await getDocs(collection(db, 'stockEntries'));
   const entries = snap.docs
     .map(d => ({id: d.id, ...d.data()}))
+    .filter(e => e.productId === productId)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
   if (entries.length === 0) {
-    el.innerHTML = `<div style="color:var(--text-soft);text-align:center;padding:30px;background:white;border-radius:12px">Henüz stok girişi yok</div>`;
+    el.innerHTML = `<div style="color:var(--text-soft);font-size:13px;padding:8px 0">Henüz alış girişi yok</div>`;
     return;
   }
   el.innerHTML = `
-    <table class="prod-table">
-      <thead><tr><th>Tarih</th><th>Ürün</th><th>Giren Miktar</th><th>Kalan</th><th>Alış Fiyatı</th><th>Toplam Maliyet</th><th>Sil</th></tr></thead>
+    <table class="prod-table" style="margin-bottom:0">
+      <thead><tr><th>Tarih</th><th>Giren</th><th>Kalan</th><th>Alış Fiyatı</th><th>Toplam Maliyet</th><th>Sil</th></tr></thead>
       <tbody>
         ${entries.map(e => {
-          const p = products.find(x => x.id === e.productId);
           const remaining = e.remaining ?? e.qty;
           return `<tr>
             <td style="font-size:12px">${e.dateStr || new Date(e.date).toLocaleDateString('tr-TR')}</td>
-            <td>${p ? `${p.emoji||'📦'} ${p.name}` : '-'}</td>
             <td style="font-weight:600">${e.qty} adet</td>
             <td style="color:${remaining<=0?'#ef4444':remaining<e.qty?'#f59e0b':'#22c55e'};font-weight:600">${remaining} adet</td>
             <td>₺${e.cost}/adet</td>
-            <td style="font-weight:600">₺${(e.qty * e.cost).toLocaleString('tr-TR')}</td>
-            <td><button class="del-btn" onclick="deleteStockEntry('${e.id}', ${e.qty}, '${e.productId}')">🗑️</button></td>
+            <td style="font-weight:600">₺${(e.qty*e.cost).toLocaleString('tr-TR')}</td>
+            <td><button class="del-btn" onclick="deleteStockEntry('${e.id}',${e.qty},'${productId}')">🗑️</button></td>
           </tr>`;
         }).join('')}
       </tbody>
@@ -986,7 +1002,7 @@ window.deleteStockEntry = async function(entryId, qty, productId) {
   const p = products.find(x => x.id === productId);
   if (p) await updateDoc(doc(db, 'products', productId), { stock: Math.max(0, (p.stock||0) - qty) });
   showToast('Stok girişi silindi');
-  renderStockHistory();
+  await loadProductStockHistory(productId);
 }
 
 // =====================
