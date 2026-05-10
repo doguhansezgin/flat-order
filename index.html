@@ -551,10 +551,11 @@ window.renderCatalog = function() {
   document.getElementById('products-grid').innerHTML = filtered.map(p => {
     const qty = cart[p.id] || 0;
     const s = p.stock ?? 999;
-    const outOfStock = s <= 0;
-    const lowStock = s > 0 && s <= 5;
+    const outOfStock = !p.unstocked && s <= 0;
+    const lowStock = !p.unstocked && s > 0 && s <= 5;
     let stockBadge = '';
-    if (outOfStock) stockBadge = `<div class="stock-badge out">Tükendi</div>`;
+    if (p.unstocked) stockBadge = `<div class="stock-badge" style="background:#ede9e0;color:#78716c">Stoksuz</div>`;
+    else if (outOfStock) stockBadge = `<div class="stock-badge out">Tükendi</div>`;
     else if (lowStock) stockBadge = `<div class="stock-badge low">Son ${s}</div>`;
     return `<div class="product-card ${outOfStock ? 'out-of-stock' : ''}">
       ${stockBadge}
@@ -563,7 +564,7 @@ window.renderCatalog = function() {
       <div class="product-name">${p.name}</div>
       <div class="product-cat">${p.cat}</div>
       <div class="product-price">₺${p.price}</div>
-      ${outOfStock ? `<button class="add-btn" disabled style="background:#ccc;cursor:not-allowed">Tükendi</button>` :
+      ${(outOfStock && !p.unstocked) ? `<button class="add-btn" disabled style="background:#ccc;cursor:not-allowed">Tükendi</button>` :
         qty === 0 ? `<button class="add-btn" onclick="addToCart('${p.id}')">+ Sepete Ekle</button>` :
         `<div class="qty-ctrl"><button onclick="decCart('${p.id}')">−</button><span>${qty}</span><button onclick="addToCart('${p.id}')">+</button></div>`
       }
@@ -761,22 +762,20 @@ window.updateOrderStatus = async function(id, status) {
   
   // Tamamlandıya geçince stok düş (daha önce tamamlanmadıysa)
   if (status === 'tamamlandi' && prevStatus !== 'tamamlandi' && order) {
-    for (const item of order.items) {
-      const p = products.find(x => x.id === item.id);
-      if (p) {
-        const newStock = Math.max(0, (p.stock || 0) - item.qty);
-        await updateDoc(doc(db, 'products', item.id), { stock: newStock });
-      }
+    // Stoksuz ürün var mı kontrol et
+    const unstockedItems = order.items.filter(i => {
+      const p = products.find(x => x.id === i.id);
+      return p && p.unstocked;
+    });
+    
+    if (unstockedItems.length > 0) {
+      // Popup göster - alış fiyatı sor
+      showUnstockedCostModal(order, unstockedItems);
+      // Status güncellemeyi popup onayından sonra yap
+      return;
     }
-    // Kullanıcı istatistikleri güncelle
-    if (order.uid) {
-      const uRef = doc(db, 'users', order.uid);
-      const uSnap = await getDoc(uRef);
-      if (uSnap.exists()) {
-        const ud = uSnap.data();
-        await updateDoc(uRef, { orderCount: (ud.orderCount||0)+1, totalSpent: (ud.totalSpent||0)+order.total });
-      }
-    }
+    
+    await completeOrder(order);
   }
   
   // İptal edilince stok geri koy (tamamlanmış siparişten)
@@ -788,6 +787,77 @@ window.updateOrderStatus = async function(id, status) {
   }
   
   showToast('Durum güncellendi ✓');
+}
+
+async function completeOrder(order, unstockedCosts) {
+  // Stoklu ürünlerden stok düş
+  for (const item of order.items) {
+    const p = products.find(x => x.id === item.id);
+    if (p && !p.unstocked) {
+      await updateDoc(doc(db, 'products', item.id), { stock: Math.max(0, (p.stock||0) - item.qty) });
+    }
+  }
+  // Stoksuz ürünlerin alış fiyatlarını kaydet
+  if (unstockedCosts) {
+    const itemsWithCost = order.items.map(i => {
+      const cost = unstockedCosts[i.id];
+      return cost ? {...i, cost: parseFloat(cost)} : i;
+    });
+    await updateDoc(doc(db, 'orders', order.id), { status: 'tamamlandi', items: itemsWithCost });
+  } else {
+    await updateDoc(doc(db, 'orders', order.id), { status: 'tamamlandi' });
+  }
+  // Kullanıcı istatistikleri güncelle
+  if (order.uid) {
+    const uRef = doc(db, 'users', order.uid);
+    const uSnap = await getDoc(uRef);
+    if (uSnap.exists()) {
+      const ud = uSnap.data();
+      await updateDoc(uRef, { orderCount: (ud.orderCount||0)+1, totalSpent: (ud.totalSpent||0)+order.total });
+    }
+  }
+  showToast('Sipariş tamamlandı ✓');
+}
+
+function showUnstockedCostModal(order, unstockedItems) {
+  // Mevcut modal varsa kaldır
+  document.getElementById('unstocked-modal')?.remove();
+  
+  const modal = document.createElement('div');
+  modal.id = 'unstocked-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:white;border-radius:20px;padding:32px;max-width:460px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+      <div style="font-size:24px;margin-bottom:8px">📦</div>
+      <div style="font-weight:700;font-size:18px;margin-bottom:6px">Alış Fiyatı Girin</div>
+      <div style="color:var(--text-soft);font-size:13px;margin-bottom:20px">${order.cafe} — ${order.num} nolu sipariş için stoksuz ürünlerin alış fiyatını girin:</div>
+      ${unstockedItems.map(i => `
+        <div style="margin-bottom:12px">
+          <label style="font-size:13px;font-weight:600;display:block;margin-bottom:4px">${i.name} (${i.qty} adet)</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" id="ucost-${i.id}" placeholder="Birim alış fiyatı (₺)" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px">
+            <span style="font-size:13px;color:var(--text-soft)">₺/adet</span>
+          </div>
+        </div>`).join('')}
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button onclick="confirmUnstockedCosts('${order.id}', ${JSON.stringify(unstockedItems.map(i=>i.id))})" style="flex:1;background:var(--accent);color:var(--text);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">✅ Kaydet ve Tamamla</button>
+        <button onclick="document.getElementById('unstocked-modal').remove()" style="background:var(--surface);color:var(--text);border:none;border-radius:10px;padding:12px 16px;font-size:14px;cursor:pointer">İptal</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+window.confirmUnstockedCosts = async function(orderId, itemIds) {
+  const costs = {};
+  for (const id of itemIds) {
+    const val = document.getElementById('ucost-'+id)?.value;
+    if (!val || isNaN(val)) { alert('Lütfen tüm alış fiyatlarını girin.'); return; }
+    costs[id] = parseFloat(val);
+  }
+  const order = allOrders.find(o => o.id === orderId);
+  if (!order) return;
+  document.getElementById('unstocked-modal').remove();
+  await completeOrder(order, costs);
 }
 
 window.deleteOrder = async function(id, num) {
@@ -831,6 +901,10 @@ window.renderAdminProducts = function() {
         <div class="form-group"><label>Kategori *</label><input id="np-cat" placeholder="Sıcak İçecek"></div>
         <div class="form-group"><label>Emoji</label><input id="np-emoji" placeholder="☕"></div>
         <div class="form-group"><label>Başlangıç Stok</label><input id="np-stock" type="number" placeholder="100"></div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:20px">
+          <input type="checkbox" id="np-unstocked" style="width:16px;height:16px;cursor:pointer">
+          <label for="np-unstocked" style="font-size:13px;cursor:pointer;color:var(--text)">📦 Stoksuz Satış <span style="font-size:11px;color:var(--text-soft)">(sipariş gelince alış fiyatı sorulsun)</span></label>
+        </div>
       </div>
       <button class="add-prod-btn" onclick="addProduct()">➕ Ürün Ekle</button>
     </div>
@@ -861,9 +935,11 @@ window.addProduct = async function() {
   const stock = parseInt(document.getElementById('np-stock').value) || 0;
   if (!code||!name||!price||!cat) { alert('Zorunlu alanları doldurun.'); return; }
   if (products.find(p=>p.code===code)) { alert('Bu kod zaten var!'); return; }
-  await addDoc(collection(db, 'products'), { code, name, price, cat, emoji, stock });
+  const unstocked = document.getElementById('np-unstocked').checked;
+  await addDoc(collection(db, 'products'), { code, name, price, cat, emoji, stock: unstocked ? 0 : stock, unstocked: unstocked });
   showToast('Ürün eklendi ✓');
   ['np-code','np-name','np-price','np-cat','np-emoji','np-stock'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('np-unstocked').checked = false;
 }
 
 window.saveProduct = async function(id) {
