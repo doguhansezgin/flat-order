@@ -934,13 +934,59 @@ window.renderAdminStock = function() {
           </tr>`;
         }).join('')}
       </tbody>
-    </table>`;
+    </table>
+    <div style="margin-top:28px">
+      <div class="section-title">📋 Alış Geçmişi</div>
+      <div id="stock-history"><div class="loading"><div class="spinner"></div><br>Yükleniyor...</div></div>
+    </div>`;
+  renderStockHistory();
 }
 
 window.updateStock = async function(id) {
   const stock = parseInt(document.getElementById('stk-'+id).value)||0;
   await updateDoc(doc(db,'products',id), { stock });
   showToast('Stok güncellendi ✓');
+}
+
+window.renderStockHistory = async function() {
+  const el = document.getElementById('stock-history');
+  if (!el) return;
+  const snap = await getDocs(collection(db, 'stockEntries'));
+  const entries = snap.docs
+    .map(d => ({id: d.id, ...d.data()}))
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (entries.length === 0) {
+    el.innerHTML = `<div style="color:var(--text-soft);text-align:center;padding:30px;background:white;border-radius:12px">Henüz stok girişi yok</div>`;
+    return;
+  }
+  el.innerHTML = `
+    <table class="prod-table">
+      <thead><tr><th>Tarih</th><th>Ürün</th><th>Giren Miktar</th><th>Kalan</th><th>Alış Fiyatı</th><th>Toplam Maliyet</th><th>Sil</th></tr></thead>
+      <tbody>
+        ${entries.map(e => {
+          const p = products.find(x => x.id === e.productId);
+          const remaining = e.remaining ?? e.qty;
+          return `<tr>
+            <td style="font-size:12px">${e.dateStr || new Date(e.date).toLocaleDateString('tr-TR')}</td>
+            <td>${p ? `${p.emoji||'📦'} ${p.name}` : '-'}</td>
+            <td style="font-weight:600">${e.qty} adet</td>
+            <td style="color:${remaining<=0?'#ef4444':remaining<e.qty?'#f59e0b':'#22c55e'};font-weight:600">${remaining} adet</td>
+            <td>₺${e.cost}/adet</td>
+            <td style="font-weight:600">₺${(e.qty * e.cost).toLocaleString('tr-TR')}</td>
+            <td><button class="del-btn" onclick="deleteStockEntry('${e.id}', ${e.qty}, '${e.productId}')">🗑️</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+window.deleteStockEntry = async function(entryId, qty, productId) {
+  if (!confirm('Bu stok girişi silinecek. Emin misiniz?')) return;
+  await deleteDoc(doc(db, 'stockEntries', entryId));
+  const p = products.find(x => x.id === productId);
+  if (p) await updateDoc(doc(db, 'products', productId), { stock: Math.max(0, (p.stock||0) - qty) });
+  showToast('Stok girişi silindi');
+  renderStockHistory();
 }
 
 // =====================
