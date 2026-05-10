@@ -448,19 +448,24 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById('btn-admin').style.display = 'inline-block';
     }
 
-    // Admin değilse onay kontrolü
-    if (!ADMIN_EMAILS.includes(user.email)) {
-      if (userProfile && userProfile.approved === false) {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app').style.display = 'none';
-        document.getElementById('pending-screen').style.display = 'flex';
-        return;
-      }
+    // Kullanıcı onayı kontrolü
+    if (userProfile && userProfile.approved === false) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('pending-screen').style.display = 'flex';
+      return;
     }
 
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('pending-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+
+    // Panel butonu - sadece adminApproved olanlar görsün
+    if (ADMIN_EMAILS.includes(user.email) || userProfile?.adminApproved === true) {
+      document.getElementById('btn-admin').style.display = 'inline-block';
+    } else {
+      document.getElementById('btn-admin').style.display = 'none';
+    }
 
     startListeners();
     loadMyOrders();
@@ -514,7 +519,7 @@ window.showView = function(v) {
 }
 
 window.showAdmin = function() {
-  if (!adminLoggedIn && !ADMIN_EMAILS.includes(currentUser?.email)) {
+  if (!adminLoggedIn && !ADMIN_EMAILS.includes(currentUser?.email) && !userProfile?.adminApproved) {
     document.getElementById('admin-login-wall').classList.add('show');
     return;
   }
@@ -533,6 +538,7 @@ window.tryAdminLogin = function() {
     document.getElementById('admin-pw').value = '';
     document.getElementById('btn-admin').style.display = 'inline-block';
     showAdmin();
+    
   } else {
     document.getElementById('login-err').style.display = 'block';
   }
@@ -818,7 +824,9 @@ async function completeOrder(order, unstockedCosts) {
   showToast('Sipariş tamamlandı ✓');
 }
 
+let _pendingUnstockedItems = [];
 function showUnstockedCostModal(order, unstockedItems) {
+  _pendingUnstockedItems = unstockedItems;
   // Mevcut modal varsa kaldır
   document.getElementById('unstocked-modal')?.remove();
   
@@ -839,19 +847,19 @@ function showUnstockedCostModal(order, unstockedItems) {
           </div>
         </div>`).join('')}
       <div style="display:flex;gap:10px;margin-top:20px">
-        <button onclick="confirmUnstockedCosts('${order.id}', ${JSON.stringify(unstockedItems.map(i=>i.id))})" style="flex:1;background:var(--accent);color:var(--text);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">✅ Kaydet ve Tamamla</button>
+        <button onclick="confirmUnstockedCosts('${order.id}')" style="flex:1;background:var(--accent);color:var(--text);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">✅ Kaydet ve Tamamla</button>
         <button onclick="document.getElementById('unstocked-modal').remove()" style="background:var(--surface);color:var(--text);border:none;border-radius:10px;padding:12px 16px;font-size:14px;cursor:pointer">İptal</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
 }
 
-window.confirmUnstockedCosts = async function(orderId, itemIds) {
+window.confirmUnstockedCosts = async function(orderId) {
   const costs = {};
-  for (const id of itemIds) {
-    const val = document.getElementById('ucost-'+id)?.value;
+  for (const item of _pendingUnstockedItems) {
+    const val = document.getElementById('ucost-'+item.id)?.value;
     if (!val || isNaN(val)) { alert('Lütfen tüm alış fiyatlarını girin.'); return; }
-    costs[id] = parseFloat(val);
+    costs[item.id] = parseFloat(val);
   }
   const order = allOrders.find(o => o.id === orderId);
   if (!order) return;
@@ -1014,7 +1022,7 @@ async function calcFIFOCost(productId, qty) {
 
 window.renderAdminStock = function() {
   const el = document.getElementById('admin-stock');
-  const sorted = [...products].sort((a,b)=>(a.stock??0)-(b.stock??0));
+  const sorted = [...products].sort((a,b)=> { if(a.unstocked && !b.unstocked) return 1; if(!a.unstocked && b.unstocked) return -1; return (a.stock??0)-(b.stock??0); });
   const low = sorted.filter(p=>!p.unstocked && (p.stock??999)<=10);
   const out = sorted.filter(p=>!p.unstocked && (p.stock??999)<=0);
   el.innerHTML = `
@@ -1431,6 +1439,7 @@ window.renderAdminUsers = async function() {
           <td style="font-size:11px;color:var(--text-soft)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('tr-TR') : '-'}</td>
           <td style="display:flex;gap:4px;flex-wrap:wrap">
             ${u.approved===false ? `<button onclick="approveUser('${u.uid}')" style="background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">✅ Onayla</button>` : ''}
+            <button onclick="toggleAdminAccess('${u.uid}', ${u.adminApproved===true})" style="background:${u.adminApproved===true?'#dbeafe':'#f1f5f9'};color:${u.adminApproved===true?'#1e40af':'#64748b'};border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">${u.adminApproved===true?'⚙️ Panel Var':'⚙️ Panel Ver'}</button>
             <button class="save-btn" onclick="saveUser('${u.uid}')">💾</button>
             <button class="del-btn" onclick="deleteUser('${u.uid}', '${u.cafe}')">🗑️</button>
           </td>
@@ -1473,6 +1482,14 @@ window.renderCustomerHistory = function() {
         ${o.note?`<div style="font-size:12px;color:var(--text-soft);margin-bottom:6px">📝 ${o.note}</div>`:''}
         <div style="font-weight:700">Toplam: ₺${o.total.toLocaleString('tr-TR')}</div>
       </div>`).join('')}`;
+}
+
+window.toggleAdminAccess = async function(uid, hasAccess) {
+  const msg = hasAccess ? 'Panel erişimi kaldırılsın mı?' : 'Bu kullanıcıya panel erişimi verilsin mi?';
+  if (!confirm(msg)) return;
+  await updateDoc(doc(db, 'users', uid), { adminApproved: !hasAccess });
+  showToast(hasAccess ? 'Panel erişimi kaldırıldı' : 'Panel erişimi verildi ✓');
+  renderAdminUsers();
 }
 
 window.approveUser = async function(uid) {
