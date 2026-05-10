@@ -849,15 +849,22 @@ window.addStockEntry = async function(productId) {
   const qty = parseInt(document.getElementById('se-qty-'+productId).value);
   const cost = parseFloat(document.getElementById('se-cost-'+productId).value);
   if (!qty || !cost) { alert('Miktar ve alış fiyatı girin.'); return; }
+  
+  // Stok girişi kaydet
   await addDoc(collection(db, 'stockEntries'), {
     productId, qty, remaining: qty, cost,
     date: new Date().toISOString(),
     dateStr: new Date().toLocaleDateString('tr-TR')
   });
+  
+  // Ürünün mevcut stokunu güncelle
+  const p = products.find(x => x.id === productId);
+  const currentStock = p ? (p.stock || 0) : 0;
+  await updateDoc(doc(db, 'products', productId), { stock: currentStock + qty });
+  
   document.getElementById('se-qty-'+productId).value = '';
   document.getElementById('se-cost-'+productId).value = '';
   showToast('Stok girişi kaydedildi ✓');
-  renderAdminStock();
 }
 
 // FIFO maliyet hesapla
