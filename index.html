@@ -641,18 +641,7 @@ window.submitOrder = async function(total) {
       createdAt: new Date().toISOString(),
       date: new Date().toLocaleString('tr-TR')
     });
-    // Stok düş
-    for (const id of Object.keys(cart)) {
-      const p = products.find(x => x.id == id);
-      if (p && p.stock !== undefined) await updateDoc(doc(db, 'products', id), { stock: Math.max(0, (p.stock||0) - cart[id]) });
-    }
-    // Kullanıcı istatistikleri güncelle
-    const userRef = doc(db, 'users', currentUser.uid);
-    const uSnap = await getDoc(userRef);
-    if (uSnap.exists()) {
-      const ud = uSnap.data();
-      await updateDoc(userRef, { orderCount: (ud.orderCount||0)+1, totalSpent: (ud.totalSpent||0)+total });
-    }
+    // Stok ve istatistikler tamamlandıya çekilince güncellenecek
     cart = {}; updateCartBadge();
     document.getElementById('success-msg').textContent = `${cafe} siparişiniz alındı! No: ${orderNum}`;
     document.getElementById('success-overlay').classList.add('show');
@@ -766,7 +755,38 @@ window.renderAdminOrders = function() {
 }
 
 window.updateOrderStatus = async function(id, status) {
+  const order = allOrders.find(o => o.id === id);
+  const prevStatus = order?.status;
   await updateDoc(doc(db, 'orders', id), { status });
+  
+  // Tamamlandıya geçince stok düş (daha önce tamamlanmadıysa)
+  if (status === 'tamamlandi' && prevStatus !== 'tamamlandi' && order) {
+    for (const item of order.items) {
+      const p = products.find(x => x.id === item.id);
+      if (p) {
+        const newStock = Math.max(0, (p.stock || 0) - item.qty);
+        await updateDoc(doc(db, 'products', item.id), { stock: newStock });
+      }
+    }
+    // Kullanıcı istatistikleri güncelle
+    if (order.uid) {
+      const uRef = doc(db, 'users', order.uid);
+      const uSnap = await getDoc(uRef);
+      if (uSnap.exists()) {
+        const ud = uSnap.data();
+        await updateDoc(uRef, { orderCount: (ud.orderCount||0)+1, totalSpent: (ud.totalSpent||0)+order.total });
+      }
+    }
+  }
+  
+  // İptal edilince stok geri koy (tamamlanmış siparişten)
+  if (status === 'iptal' && prevStatus === 'tamamlandi' && order) {
+    for (const item of order.items) {
+      const p = products.find(x => x.id === item.id);
+      if (p) await updateDoc(doc(db, 'products', item.id), { stock: (p.stock||0) + item.qty });
+    }
+  }
+  
   showToast('Durum güncellendi ✓');
 }
 
@@ -1127,7 +1147,7 @@ window.submitAdminOrder = async function() {
   const note = document.getElementById('ao-note')?.value || '';
   await addDoc(collection(db, 'orders'), {
     num: orderNum, uid, cafe: user.cafe, contact: user.name, phone: user.phone,
-    note, items, total, status: 'tamamlandi',
+    note, items, total, status: 'bekliyor',
     createdAt: new Date().toISOString(),
     date: new Date().toLocaleString('tr-TR'),
     addedByAdmin: true
@@ -1283,6 +1303,25 @@ window.renderAdminUsers = async function() {
       <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${users.filter(u=>u.approved===false).length}</div><div class="stat-label">Onay Bekleyen</div></div>
       <div class="stat-card"><div class="stat-num">${allOrders.length}</div><div class="stat-label">Toplam Sipariş</div></div>
     </div>
+    
+    <!-- MÜŞTERİ SATIŞ GEÇMİŞİ -->
+    <div style="background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:20px">
+      <div class="section-title" style="margin-bottom:12px">📊 Müşteri Satış Geçmişi</div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+        <select id="customer-filter" onchange="renderCustomerHistory()" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;min-width:200px">
+          <option value="">-- Müşteri seçin --</option>
+          ${users.map(u=>`<option value="${u.uid}">${u.cafe} — ${u.name}</option>`).join('')}
+        </select>
+        <select id="customer-status-filter" onchange="renderCustomerHistory()" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px">
+          <option value="">Tüm Durumlar</option>
+          <option value="bekliyor">⏳ Bekliyor</option>
+          <option value="hazirlaniyor">🔄 Hazırlanıyor</option>
+          <option value="tamamlandi">✅ Tamamlandı</option>
+          <option value="iptal">❌ İptal</option>
+        </select>
+      </div>
+      <div id="customer-history-content"><div style="color:var(--text-soft);font-size:13px;text-align:center;padding:20px">Müşteri seçin</div></div>
+    </div>
     <table class="user-table">
       <thead><tr><th>Durum</th><th>Kafe / Şube</th><th>Yetkili</th><th>Telefon</th><th>E-posta</th><th>Sipariş</th><th>Harcama</th><th>Kayıt</th><th>İşlem</th></tr></thead>
       <tbody>
@@ -1303,6 +1342,42 @@ window.renderAdminUsers = async function() {
         </tr>`).join('')}
       </tbody>
     </table>`;
+}
+
+window.renderCustomerHistory = function() {
+  const uid = document.getElementById('customer-filter')?.value;
+  const statusFilter = document.getElementById('customer-status-filter')?.value;
+  const el = document.getElementById('customer-history-content');
+  if (!el) return;
+  if (!uid) { el.innerHTML = `<div style="color:var(--text-soft);font-size:13px;text-align:center;padding:20px">Müşteri seçin</div>`; return; }
+  
+  let orders = allOrders.filter(o => o.uid === uid);
+  if (statusFilter) orders = orders.filter(o => o.status === statusFilter);
+  
+  const badgeMap = { bekliyor:'badge-bekliyor', hazirlaniyor:'badge-hazirlaniyor', tamamlandi:'badge-tamamlandi', iptal:'badge-iptal' };
+  const labelMap = { bekliyor:'⏳ Bekliyor', hazirlaniyor:'🔄 Hazırlanıyor', tamamlandi:'✅ Tamamlandı', iptal:'❌ İptal' };
+  
+  const totalSpent = orders.filter(o=>o.status==='tamamlandi').reduce((s,o)=>s+o.total,0);
+  
+  if (orders.length === 0) { el.innerHTML = `<div style="color:var(--text-soft);font-size:13px;text-align:center;padding:20px">Sipariş bulunamadı</div>`; return; }
+  
+  el.innerHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="background:var(--surface);border-radius:8px;padding:10px 16px;font-size:13px"><span style="color:var(--text-soft)">Toplam Sipariş:</span> <b>${orders.length}</b></div>
+      <div style="background:var(--surface);border-radius:8px;padding:10px 16px;font-size:13px"><span style="color:var(--text-soft)">Tamamlanan Ciro:</span> <b style="color:#22c55e">₺${totalSpent.toLocaleString('tr-TR')}</b></div>
+    </div>
+    ${orders.map(o => `
+      <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${o.status==='tamamlandi'?'#22c55e':o.status==='bekliyor'?'#f59e0b':o.status==='hazirlaniyor'?'#3b82f6':'#ef4444'}">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+          <div><span style="font-weight:700">${o.num}</span> <span class="status-badge ${badgeMap[o.status]||'badge-bekliyor'}">${labelMap[o.status]||o.status}</span></div>
+          <div style="font-size:12px;color:var(--text-soft)">📅 ${o.date}</div>
+        </div>
+        <div style="font-size:13px;color:var(--text-soft);margin-bottom:8px;line-height:1.8">
+          ${o.items.map(i=>`<span class="code-tag">#${i.code}</span> ${i.name} ×${i.qty} = <b>₺${i.price*i.qty}</b>`).join(' &nbsp;|&nbsp; ')}
+        </div>
+        ${o.note?`<div style="font-size:12px;color:var(--text-soft);margin-bottom:6px">📝 ${o.note}</div>`:''}
+        <div style="font-weight:700">Toplam: ₺${o.total.toLocaleString('tr-TR')}</div>
+      </div>`).join('')}`;
 }
 
 window.approveUser = async function(uid) {
