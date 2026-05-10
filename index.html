@@ -469,6 +469,8 @@ onAuthStateChanged(auth, async (user) => {
 
     startListeners();
     loadMyOrders();
+    // Her zaman catalog'dan başla
+    showView('catalog');
   } else {
     currentUser = null;
     userProfile = null;
@@ -519,8 +521,9 @@ window.showView = function(v) {
 }
 
 window.showAdmin = function() {
-  if (!adminLoggedIn && !ADMIN_EMAILS.includes(currentUser?.email) && !userProfile?.adminApproved) {
-    document.getElementById('admin-login-wall').classList.add('show');
+  // Yetkisiz erişimi engelle
+  if (!ADMIN_EMAILS.includes(currentUser?.email) && !userProfile?.adminApproved && !adminLoggedIn) {
+    showView('catalog');
     return;
   }
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
