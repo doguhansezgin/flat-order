@@ -245,12 +245,14 @@
 
   <div class="view" id="view-admin">
     <div class="admin-tabs">
-      <button class="admin-tab active" onclick="switchAdminTab('orders', this)">📋 Tüm Siparişler</button>
-      <button class="admin-tab" onclick="switchAdminTab('products', this)">📦 Ürün Yönet</button>
+      <button class="admin-tab active" onclick="switchAdminTab('orders', this)">📋 Siparişler</button>
+      <button class="admin-tab" onclick="switchAdminTab('neworder', this)">➕ Sipariş Gir</button>
+      <button class="admin-tab" onclick="switchAdminTab('products', this)">📦 Ürünler</button>
       <button class="admin-tab" onclick="switchAdminTab('stock', this)">📊 Stok</button>
       <button class="admin-tab" onclick="switchAdminTab('users', this)">👥 Müşteriler</button>
     </div>
     <div id="admin-orders"></div>
+    <div id="admin-neworder" style="display:none"></div>
     <div id="admin-products" style="display:none"></div>
     <div id="admin-stock" style="display:none"></div>
     <div id="admin-users" style="display:none"></div>
@@ -675,10 +677,11 @@ window.switchAdminTab = function(tab, btn) {
   adminTab = tab;
   document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['orders','products','stock','users'].forEach(t => {
+  ['orders','neworder','products','stock','users'].forEach(t => {
     document.getElementById('admin-' + t).style.display = t === tab ? 'block' : 'none';
   });
   if (tab === 'orders') renderAdminOrders();
+  if (tab === 'neworder') renderAdminNewOrder();
   if (tab === 'products') renderAdminProducts();
   if (tab === 'stock') renderAdminStock();
   if (tab === 'users') renderAdminUsers();
@@ -832,6 +835,176 @@ window.updateStock = async function(id) {
   const stock = parseInt(document.getElementById('stk-'+id).value)||0;
   await updateDoc(doc(db,'products',id), { stock });
   showToast('Stok güncellendi ✓');
+}
+
+// =====================
+// ADMIN - SİPARİŞ GİR
+// =====================
+let adminOrderCart = {};
+let adminUsers = [];
+
+window.renderAdminNewOrder = async function() {
+  const el = document.getElementById('admin-neworder');
+  el.innerHTML = `<div class="loading"><div class="spinner"></div><br>Müşteriler yükleniyor...</div>`;
+  const snap = await getDocs(collection(db, 'users'));
+  adminUsers = snap.docs.map(d => d.data());
+  adminOrderCart = {};
+  renderAdminNewOrderUI();
+}
+
+function renderAdminNewOrderUI() {
+  const el = document.getElementById('admin-neworder');
+  const selectedUid = document.getElementById('ao-user-select')?.value || '';
+  const selectedUser = adminUsers.find(u => u.uid === selectedUid);
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+      <!-- SOL: Müşteri + Ürünler -->
+      <div>
+        <div class="prod-admin-form" style="margin-bottom:16px">
+          <div class="section-title">👤 Müşteri Seç</div>
+          <select id="ao-user-select" onchange="renderAdminNewOrderUI()" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;background:#FFFFFF;color:var(--text)">
+            <option value="">-- Müşteri seçin --</option>
+            ${adminUsers.map(u => `<option value="${u.uid}" ${u.uid===selectedUid?'selected':''}>${u.cafe} — ${u.name}</option>`).join('')}
+          </select>
+          ${selectedUser ? `<div style="margin-top:10px;padding:10px;background:var(--surface);border-radius:8px;font-size:13px">
+            <div>🏪 <b>${selectedUser.cafe}</b></div>
+            <div style="color:var(--text-soft);margin-top:2px">📞 ${selectedUser.phone} | ✉️ ${selectedUser.email}</div>
+          </div>` : ''}
+          <div style="margin-top:12px">
+            <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Not (opsiyonel)</label>
+            <textarea id="ao-note" placeholder="Sipariş notu..." style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;height:70px;resize:vertical"></textarea>
+          </div>
+        </div>
+
+        <div class="prod-admin-form">
+          <div class="section-title">🛍️ Ürün Seç</div>
+          <div style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto">
+            ${products.map(p => {
+              const qty = adminOrderCart[p.id] || 0;
+              return `<div style="display:flex;align-items:center;gap:10px;padding:8px;background:${qty>0?'#fef3c7':'var(--surface)'};border-radius:8px">
+                <span style="font-size:20px">${p.emoji||'📦'}</span>
+                <div style="flex:1">
+                  <div style="font-weight:600;font-size:13px">${p.name}</div>
+                  <div style="font-size:11px;color:var(--text-soft)">₺${p.price}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <button onclick="aoDecCart('${p.id}')" style="width:26px;height:26px;border-radius:50%;border:2px solid var(--text);background:#FFFFFF;cursor:pointer;font-size:14px;font-weight:700">−</button>
+                  <span style="font-weight:700;min-width:18px;text-align:center">${qty}</span>
+                  <button onclick="aoAddCart('${p.id}')" style="width:26px;height:26px;border-radius:50%;border:2px solid var(--text);background:#FFFFFF;cursor:pointer;font-size:14px;font-weight:700">+</button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- SAĞ: Özet -->
+      <div class="prod-admin-form" style="position:sticky;top:80px">
+        <div class="section-title">📋 Sipariş Özeti</div>
+        ${Object.keys(adminOrderCart).length === 0 ? `<div style="color:var(--text-soft);font-size:13px;text-align:center;padding:20px">Henüz ürün eklenmedi</div>` : ''}
+        ${Object.keys(adminOrderCart).map(id => {
+          const p = products.find(x=>x.id==id);
+          if (!p) return '';
+          return `<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+            <span>${p.emoji} ${p.name} ×${adminOrderCart[id]}</span>
+            <span style="font-weight:700">₺${p.price * adminOrderCart[id]}</span>
+          </div>`;
+        }).join('')}
+        ${Object.keys(adminOrderCart).length > 0 ? `
+          <div style="border-top:2px solid var(--border);padding-top:10px;margin-top:10px;display:flex;justify-content:space-between;font-weight:700;font-size:16px">
+            <span>Toplam</span>
+            <span>₺${Object.keys(adminOrderCart).reduce((sum,id)=>{ const p=products.find(x=>x.id==id); return sum+(p?p.price*adminOrderCart[id]:0); },0)}</span>
+          </div>
+          <button onclick="submitAdminOrder()" style="width:100%;background:var(--accent);color:var(--text);border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px">✅ Siparişi Kaydet</button>
+        ` : ''}
+      </div>
+    </div>
+
+    <div style="margin-top:20px;border-top:2px solid var(--border);padding-top:20px">
+      <div class="section-title">➕ Yeni Üye Ekle</div>
+      <div class="prod-admin-form">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div><label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Kafe / Şube Adı *</label><input id="nu-cafe" placeholder="Flat Coffee Bağcılar" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px"></div>
+          <div><label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Yetkili Adı *</label><input id="nu-name" placeholder="Ahmet Yılmaz" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px"></div>
+          <div><label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Telefon</label><input id="nu-phone" placeholder="0532 000 00 00" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px"></div>
+          <div><label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">E-posta *</label><input id="nu-email" type="email" placeholder="ahmet@flatcoffee.com" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px"></div>
+          <div><label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Şifre * (min 6 karakter)</label><input id="nu-pw" type="password" placeholder="••••••" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px"></div>
+        </div>
+        <div id="nu-err" style="color:#ef4444;font-size:13px;margin-top:8px;display:none"></div>
+        <button onclick="addUserByAdmin()" style="background:var(--text);color:white;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:600;margin-top:12px">👤 Üye Oluştur</button>
+      </div>
+    </div>`;
+}
+
+window.aoAddCart = function(id) {
+  adminOrderCart[id] = (adminOrderCart[id] || 0) + 1;
+  renderAdminNewOrderUI();
+}
+
+window.aoDecCart = function(id) {
+  adminOrderCart[id] = (adminOrderCart[id] || 1) - 1;
+  if (adminOrderCart[id] === 0) delete adminOrderCart[id];
+  renderAdminNewOrderUI();
+}
+
+window.submitAdminOrder = async function() {
+  const uid = document.getElementById('ao-user-select')?.value;
+  if (!uid) { alert('Lütfen bir müşteri seçin.'); return; }
+  if (Object.keys(adminOrderCart).length === 0) { alert('Sepet boş.'); return; }
+  const user = adminUsers.find(u => u.uid === uid);
+  const items = Object.keys(adminOrderCart).map(id => { const p=products.find(x=>x.id==id); return {id:p.id,code:p.code,name:p.name,qty:adminOrderCart[id],price:p.price}; });
+  const total = items.reduce((s,i)=>s+i.price*i.qty, 0);
+  const orderNum = 'SP' + Date.now().toString().slice(-6);
+  const note = document.getElementById('ao-note')?.value || '';
+  await addDoc(collection(db, 'orders'), {
+    num: orderNum, uid, cafe: user.cafe, contact: user.name, phone: user.phone,
+    note, items, total, status: 'tamamlandi',
+    createdAt: new Date().toISOString(),
+    date: new Date().toLocaleString('tr-TR'),
+    addedByAdmin: true
+  });
+  // Kullanıcı istatistikleri güncelle
+  const uRef = doc(db, 'users', uid);
+  const uSnap = await getDoc(uRef);
+  if (uSnap.exists()) {
+    const ud = uSnap.data();
+    await updateDoc(uRef, { orderCount: (ud.orderCount||0)+1, totalSpent: (ud.totalSpent||0)+total });
+  }
+  adminOrderCart = {};
+  showToast(`${user.cafe} için sipariş oluşturuldu ✓`);
+  renderAdminNewOrderUI();
+}
+
+window.addUserByAdmin = async function() {
+  const cafe = document.getElementById('nu-cafe').value.trim();
+  const name = document.getElementById('nu-name').value.trim();
+  const phone = document.getElementById('nu-phone').value.trim();
+  const email = document.getElementById('nu-email').value.trim();
+  const pw = document.getElementById('nu-pw').value;
+  const errEl = document.getElementById('nu-err');
+  if (!cafe||!name||!email||!pw) { errEl.textContent='Zorunlu alanları doldurun.'; errEl.style.display='block'; return; }
+  if (pw.length < 6) { errEl.textContent='Şifre en az 6 karakter olmalı.'; errEl.style.display='block'; return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    await updateProfile(cred.user, { displayName: cafe });
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      uid: cred.user.uid, cafe, name, phone, email,
+      createdAt: new Date().toISOString(),
+      orderCount: 0, totalSpent: 0, addedByAdmin: true
+    });
+    errEl.style.display = 'none';
+    showToast(`${cafe} üyesi oluşturuldu ✓`);
+    ['nu-cafe','nu-name','nu-phone','nu-email','nu-pw'].forEach(id=>document.getElementById(id).value='');
+    // Listeyi güncelle
+    const snap = await getDocs(collection(db, 'users'));
+    adminUsers = snap.docs.map(d => d.data());
+    renderAdminNewOrderUI();
+  } catch(e) {
+    const msgs = { 'auth/email-already-in-use': 'Bu e-posta zaten kayıtlı.' };
+    errEl.textContent = msgs[e.code] || e.message;
+    errEl.style.display = 'block';
+  }
 }
 
 // =====================
