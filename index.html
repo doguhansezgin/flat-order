@@ -1324,17 +1324,28 @@ window.renderAdminReports = async function() {
     const itemDetails = [];
     
     for (const item of o.items) {
-      const fifo = await calcFIFOCost(item.id, item.qty);
+      const p = products.find(x => x.id === item.id);
       const itemRevenue = item.price * item.qty;
-      const itemProfit = itemRevenue - fifo.totalCost;
-      orderCost += fifo.totalCost;
+      let itemCost = 0;
+
+      if (p && p.unstocked) {
+        // Stoksuz ürün: sipariş üzerindeki cost alanını kullan
+        itemCost = item.cost ? item.cost * item.qty : 0;
+      } else {
+        // Stoklu ürün: FIFO hesapla
+        const fifo = await calcFIFOCost(item.id, item.qty);
+        itemCost = fifo.totalCost;
+      }
+
+      const itemProfit = itemRevenue - itemCost;
+      orderCost += itemCost;
       itemDetails.push({
         ...item,
         revenue: itemRevenue,
-        cost: fifo.totalCost,
+        cost: itemCost,
         profit: itemProfit,
         margin: itemRevenue > 0 ? ((itemProfit/itemRevenue)*100).toFixed(1) : 0,
-        breakdown: fifo.breakdown
+        isUnstocked: p?.unstocked || false
       });
     }
     
