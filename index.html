@@ -250,7 +250,6 @@
       <button class="admin-tab" onclick="switchAdminTab('products', this)">📦 Ürünler</button>
       <button class="admin-tab" onclick="switchAdminTab('stock', this)">📊 Stok</button>
       <button class="admin-tab" onclick="switchAdminTab('users', this)">👥 Müşteriler</button>
-      <button class="admin-tab" onclick="switchAdminTab('shipments', this)">🚚 Sevkiyat</button>
       <button class="admin-tab" onclick="switchAdminTab('reports', this)">📈 Raporlar</button>
     </div>
     <div id="admin-orders"></div>
@@ -258,7 +257,6 @@
     <div id="admin-products" style="display:none"></div>
     <div id="admin-stock" style="display:none"></div>
     <div id="admin-users" style="display:none"></div>
-    <div id="admin-shipments" style="display:none"></div>
     <div id="admin-reports" style="display:none"></div>
   </div>
 </div>
@@ -543,7 +541,6 @@ window.tryAdminLogin = function() {
     document.getElementById('admin-pw').value = '';
     document.getElementById('btn-admin').style.display = 'inline-block';
     showAdmin();
-    
   } else {
     document.getElementById('login-err').style.display = 'block';
   }
@@ -705,7 +702,7 @@ window.switchAdminTab = function(tab, btn) {
   adminTab = tab;
   document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['orders','neworder','products','stock','users','shipments','reports'].forEach(t => {
+  ['orders','neworder','products','stock','users','reports'].forEach(t => {
     document.getElementById('admin-' + t).style.display = t === tab ? 'block' : 'none';
   });
   if (tab === 'orders') renderAdminOrders();
@@ -713,7 +710,6 @@ window.switchAdminTab = function(tab, btn) {
   if (tab === 'products') renderAdminProducts();
   if (tab === 'stock') renderAdminStock();
   if (tab === 'users') renderAdminUsers();
-  if (tab === 'shipments') renderAdminShipments();
   if (tab === 'reports') renderAdminReports();
 }
 
@@ -921,9 +917,6 @@ window.renderAdminProducts = function() {
       </div>
       <button class="add-prod-btn" onclick="addProduct()">➕ Ürün Ekle</button>
     </div>
-    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-      <button onclick="saveAllProducts()" style="background:var(--accent);color:var(--text);border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:700">💾 Tümünü Kaydet</button>
-    </div>
     <table class="prod-table">
       <thead><tr><th>Kod</th><th>Ürün</th><th>Kategori</th><th>Fiyat</th><th>Stok</th><th>İşlem</th></tr></thead>
       <tbody>
@@ -956,21 +949,6 @@ window.addProduct = async function() {
   showToast('Ürün eklendi ✓');
   ['np-code','np-name','np-price','np-cat','np-emoji','np-stock'].forEach(id => document.getElementById(id).value='');
   document.getElementById('np-unstocked').checked = false;
-}
-
-window.saveAllProducts = async function() {
-  let count = 0;
-  for (const p of products) {
-    const priceEl = document.getElementById('price-'+p.id);
-    const stockEl = document.getElementById('stock-'+p.id);
-    if (!priceEl || !stockEl) continue;
-    const price = parseFloat(priceEl.value);
-    const stock = parseInt(stockEl.value)||0;
-    if (isNaN(price)) continue;
-    await updateDoc(doc(db,'products',p.id), { price, stock });
-    count++;
-  }
-  showToast(`${count} ürün kaydedildi ✓`);
 }
 
 window.saveProduct = async function(id) {
@@ -1323,322 +1301,71 @@ window.addUserByAdmin = async function() {
 }
 
 // =====================
-// SEVKİYAT TAKİBİ
-// =====================
-window.renderAdminShipments = async function() {
-  const el = document.getElementById('admin-shipments');
-  el.innerHTML = `<div class="loading"><div class="spinner"></div><br>Yükleniyor...</div>`;
-
-  const usersSnap = await getDocs(collection(db, 'users'));
-  const users = usersSnap.docs.map(d => d.data()).filter(u => u.approved !== false);
-
-  const shipmentsSnap = await getDocs(query(collection(db, 'shipments'), orderBy('createdAt', 'desc')));
-  const shipments = shipmentsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  const statusLabel = { hazirlaniyor: '🔄 Hazırlanıyor', sevk_edildi: '🚚 Sevk Edildi', teslim_alindi: '✅ Teslim Alındı' };
-  const statusColor = { hazirlaniyor: '#3b82f6', sevk_edildi: '#f59e0b', teslim_alindi: '#22c55e' };
-
-  el.innerHTML = `
-    <h2>🚚 Sevkiyat Takibi</h2>
-
-    <!-- YENİ SEVKİYAT -->
-    <div class="prod-admin-form" style="margin-bottom:24px">
-      <div class="section-title">➕ Yeni Sevkiyat Oluştur</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-        <div>
-          <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Şube *</label>
-          <select id="sh-user" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px">
-            <option value="">-- Şube seçin --</option>
-            ${users.map(u => `<option value="${u.uid}" data-cafe="${u.cafe}">${u.cafe}</option>`).join('')}
-          </select>
-        </div>
-        <div>
-          <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Sevkiyat Tarihi</label>
-          <input type="date" id="sh-date" value="${new Date().toISOString().slice(0,10)}" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px">
-        </div>
-      </div>
-      <div style="margin-bottom:12px">
-        <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:6px">Ürünler</label>
-        <div id="sh-items" style="display:flex;flex-direction:column;gap:8px">
-          <div class="sh-item-row" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:center">
-            <select class="sh-product-sel" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px">
-              <option value="">-- Ürün --</option>
-              ${products.map(p => `<option value="${p.id}" data-price="${p.price}" data-name="${p.name}">${p.name}</option>`).join('')}
-            </select>
-            <input type="number" class="sh-qty" placeholder="Adet" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px">
-            <input type="number" class="sh-unit-price" placeholder="₺/adet" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px">
-            <button onclick="this.closest('.sh-item-row').remove()" style="background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button>
-          </div>
-        </div>
-        <button onclick="addShipmentItemRow()" style="background:var(--surface);border:1.5px dashed var(--border);border-radius:8px;padding:8px 16px;cursor:pointer;font-size:13px;margin-top:8px;width:100%">+ Ürün Ekle</button>
-      </div>
-      <div style="margin-bottom:12px">
-        <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Not</label>
-        <input type="text" id="sh-note" placeholder="Sevkiyat notu..." style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px">
-      </div>
-      <button onclick="createShipment()" style="background:var(--accent);color:var(--text);border:none;border-radius:8px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:700">🚚 Sevkiyat Oluştur</button>
-    </div>
-
-    <!-- SEVKİYAT LİSTESİ -->
-    <div class="section-title">📋 Sevkiyat Listesi</div>
-    ${shipments.length === 0 ? '<div class="no-orders">🚚<br><br>Henüz sevkiyat yok</div>' :
-      shipments.map(s => `
-        <div style="background:white;border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-left:4px solid ${statusColor[s.status]||'#ddd'}">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-            <div>
-              <span style="font-weight:700;font-size:15px">${s.num}</span>
-              <span style="background:${statusColor[s.status]}22;color:${statusColor[s.status]};border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;margin-left:8px">${statusLabel[s.status]||s.status}</span>
-            </div>
-            <div style="font-size:12px;color:var(--text-soft)">📅 ${s.dateStr}</div>
-          </div>
-          <div style="font-weight:600;font-size:13px;margin-bottom:8px">🏪 ${s.cafe}</div>
-          <div style="font-size:13px;color:#555;margin-bottom:10px;line-height:1.8">
-            ${s.items.map(i => `<span class="code-tag">${i.name}</span> ×${i.qty} @ ₺${i.unitPrice} = <b>₺${(i.qty*i.unitPrice).toLocaleString('tr-TR')}</b>`).join(' &nbsp;|&nbsp; ')}
-          </div>
-          <div style="font-weight:700;margin-bottom:10px">Toplam: ₺${s.total.toLocaleString('tr-TR')}</div>
-          ${s.note ? `<div style="font-size:12px;color:#888;margin-bottom:10px">📝 ${s.note}</div>` : ''}
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            ${s.status === 'hazirlaniyor' ? `<button onclick="updateShipmentStatus('${s.id}','sevk_edildi')" style="background:#fef3c7;color:#92400e;border:none;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:700">🚚 Sevk Edildi</button>` : ''}
-            ${s.status === 'sevk_edildi' ? `<button onclick="updateShipmentStatus('${s.id}','teslim_alindi')" style="background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:700">✅ Teslim Alındı</button>` : ''}
-            <button onclick="printShipment('${s.id}')" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:600">🖨️ Yazdır</button>
-            <button onclick="deleteShipment('${s.id}')" style="background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:7px 12px;cursor:pointer;font-size:12px">🗑️</button>
-          </div>
-        </div>`).join('')}`;
-}
-
-window.addShipmentItemRow = function() {
-  const row = document.createElement('div');
-  row.className = 'sh-item-row';
-  row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:center';
-  row.innerHTML = `
-    <select class="sh-product-sel" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px">
-      <option value="">-- Ürün --</option>
-      ${products.map(p => `<option value="${p.id}" data-price="${p.price}" data-name="${p.name}">${p.name}</option>`).join('')}
-    </select>
-    <input type="number" class="sh-qty" placeholder="Adet" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px">
-    <input type="number" class="sh-unit-price" placeholder="₺/adet" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px">
-    <button onclick="this.closest('.sh-item-row').remove()" style="background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button>`;
-  document.getElementById('sh-items').appendChild(row);
-}
-
-window.createShipment = async function() {
-  const uidSel = document.getElementById('sh-user');
-  const uid = uidSel.value;
-  const cafe = uidSel.options[uidSel.selectedIndex]?.dataset?.cafe || '';
-  const dateStr = document.getElementById('sh-date').value;
-  const note = document.getElementById('sh-note').value;
-  if (!uid) { alert('Şube seçin.'); return; }
-  const rows = document.querySelectorAll('.sh-item-row');
-  const items = [];
-  for (const row of rows) {
-    const sel = row.querySelector('.sh-product-sel');
-    const qty = parseInt(row.querySelector('.sh-qty').value);
-    const unitPrice = parseFloat(row.querySelector('.sh-unit-price').value);
-    if (!sel.value || !qty || !unitPrice) continue;
-    items.push({ productId: sel.value, name: sel.options[sel.selectedIndex].dataset.name, qty, unitPrice });
-  }
-  if (items.length === 0) { alert('En az bir ürün ekleyin.'); return; }
-  const total = items.reduce((s,i) => s + i.qty * i.unitPrice, 0);
-  const num = 'SV' + Date.now().toString().slice(-6);
-  await addDoc(collection(db, 'shipments'), {
-    num, uid, cafe, items, total, note, status: 'hazirlaniyor',
-    createdAt: new Date().toISOString(),
-    dateStr: dateStr || new Date().toLocaleDateString('tr-TR')
-  });
-  showToast('Sevkiyat oluşturuldu ✓');
-  renderAdminShipments();
-}
-
-window.updateShipmentStatus = async function(id, status) {
-  await updateDoc(doc(db, 'shipments', id), { status });
-  showToast('Durum güncellendi ✓');
-  renderAdminShipments();
-}
-
-window.deleteShipment = async function(id) {
-  if (!confirm('Bu sevkiyat silinecek. Emin misiniz?')) return;
-  await deleteDoc(doc(db, 'shipments', id));
-  showToast('Silindi');
-  renderAdminShipments();
-}
-
-window.printShipment = async function(id) {
-  const snap = await getDocs(collection(db, 'shipments'));
-  const s = snap.docs.map(d => ({id: d.id, ...d.data()})).find(x => x.id === id);
-  if (!s) return;
-  const statusLabel = { hazirlaniyor: 'Hazırlanıyor', sevk_edildi: 'Sevk Edildi', teslim_alindi: 'Teslim Alındı' };
-  const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Sevkiyat ${s.num}</title>
-    <style>body{font-family:Arial,sans-serif;padding:32px;max-width:600px;margin:0 auto}h1{font-size:22px;margin-bottom:4px}
-    .meta{color:#666;font-size:13px;margin-bottom:20px}table{width:100%;border-collapse:collapse;margin-bottom:20px}
-    th,td{padding:10px 12px;border:1px solid #ddd;text-align:left}th{background:#f5f5f5;font-weight:600}
-    .total{font-size:16px;font-weight:700;text-align:right}.footer{color:#888;font-size:12px;margin-top:24px;border-top:1px solid #ddd;padding-top:12px}
-    @media print{button{display:none}}</style></head><body>
-    <h1>📦 Sevkiyat Belgesi</h1>
-    <div class="meta">
-      <b>No:</b> ${s.num} &nbsp;|&nbsp; <b>Tarih:</b> ${s.dateStr} &nbsp;|&nbsp; <b>Durum:</b> ${statusLabel[s.status]||s.status}<br>
-      <b>Şube:</b> ${s.cafe}${s.note ? ` &nbsp;|&nbsp; <b>Not:</b> ${s.note}` : ''}
-    </div>
-    <table><thead><tr><th>Ürün</th><th>Adet</th><th>Birim Fiyat</th><th>Toplam</th></tr></thead>
-    <tbody>${s.items.map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>₺${i.unitPrice}</td><td>₺${(i.qty*i.unitPrice).toLocaleString('tr-TR')}</td></tr>`).join('')}
-    </tbody></table>
-    <div class="total">Toplam: ₺${s.total.toLocaleString('tr-TR')}</div>
-    <div class="footer">Flat Coffee & Cake — Merkez Mutfak &nbsp;|&nbsp; ${new Date().toLocaleDateString('tr-TR')}</div>
-    <br><button onclick="window.print()">🖨️ Yazdır</button>
-    </body></html>`);
-  win.document.close();
-}
-
-// =====================
 // ADMIN - RAPORLAR
 // =====================
 window.renderAdminReports = async function() {
   const el = document.getElementById('admin-reports');
   el.innerHTML = `<div class="loading"><div class="spinner"></div><br>Raporlar hesaplanıyor...</div>`;
   
+  // Tüm stok girişlerini al
   const stockSnap = await getDocs(collection(db, 'stockEntries'));
   const stockEntries = stockSnap.docs.map(d => ({id: d.id, ...d.data()}));
   
-  const shipmentsSnap = await getDocs(collection(db, 'shipments'));
-  const shipments = shipmentsSnap.docs.map(d => ({id: d.id, ...d.data()}));
-
+  // Tamamlanan siparişler
   const completedOrders = allOrders.filter(o => o.status === 'tamamlandi');
-
-  // Ay listesi
-  const months = [...new Set(completedOrders.map(o => {
-    const d = new Date(o.createdAt);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  }))].sort().reverse();
-
-  const monthNames = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-
-  // Şube listesi
-  const cafeList = [...new Set(completedOrders.map(o => o.cafe))].sort();
-
+  
   let totalRevenue = 0, totalCost = 0, totalProfit = 0;
+  
+  // Her sipariş için kar hesapla
   const orderReports = await Promise.all(completedOrders.map(async o => {
     let orderCost = 0;
+    let orderRevenue = o.total;
     const itemDetails = [];
+    
     for (const item of o.items) {
       const p = products.find(x => x.id === item.id);
       const itemRevenue = item.price * item.qty;
       let itemCost = 0;
+
       if (p && p.unstocked) {
+        // Stoksuz ürün: sipariş üzerindeki cost alanını kullan
         itemCost = item.cost ? item.cost * item.qty : 0;
       } else {
+        // Stoklu ürün: FIFO hesapla
         const fifo = await calcFIFOCost(item.id, item.qty);
         itemCost = fifo.totalCost;
       }
+
+      const itemProfit = itemRevenue - itemCost;
       orderCost += itemCost;
-      itemDetails.push({ ...item, revenue: itemRevenue, cost: itemCost, profit: itemRevenue - itemCost, isUnstocked: p?.unstocked || false });
+      itemDetails.push({
+        ...item,
+        revenue: itemRevenue,
+        cost: itemCost,
+        profit: itemProfit,
+        margin: itemRevenue > 0 ? ((itemProfit/itemRevenue)*100).toFixed(1) : 0,
+        isUnstocked: p?.unstocked || false
+      });
     }
-    const orderRevenue = o.total;
+    
+    const orderProfit = orderRevenue - orderCost;
     totalRevenue += orderRevenue;
     totalCost += orderCost;
-    totalProfit += (orderRevenue - orderCost);
-    return { ...o, orderCost, orderProfit: orderRevenue - orderCost, itemDetails };
+    totalProfit += orderProfit;
+    
+    return { ...o, orderCost, orderProfit, itemDetails };
   }));
-
+  
   const margin = totalRevenue > 0 ? ((totalProfit/totalRevenue)*100).toFixed(1) : 0;
-
-  // Şube bazlı özet
-  const cafeStats = {};
-  for (const o of orderReports) {
-    if (!cafeStats[o.cafe]) cafeStats[o.cafe] = { revenue:0, cost:0, profit:0, count:0 };
-    cafeStats[o.cafe].revenue += o.total;
-    cafeStats[o.cafe].cost += o.orderCost;
-    cafeStats[o.cafe].profit += o.orderProfit;
-    cafeStats[o.cafe].count++;
-  }
-
-  // En çok sipariş edilen ürünler
-  const productStats = {};
-  for (const o of orderReports) {
-    for (const i of o.items) {
-      if (!productStats[i.name]) productStats[i.name] = { qty:0, revenue:0 };
-      productStats[i.name].qty += i.qty;
-      productStats[i.name].revenue += i.price * i.qty;
-    }
-  }
-  const topProducts = Object.entries(productStats).sort((a,b) => b[1].qty - a[1].qty).slice(0, 5);
-
+  
   el.innerHTML = `
-    <h2>📈 Raporlar</h2>
-
-    <!-- GENEL ÖZET -->
-    <div class="stats-row" style="margin-bottom:24px">
+    <div class="stats-row">
       <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺${totalRevenue.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Ciro</div></div>
       <div class="stat-card"><div class="stat-num" style="color:#ef4444">₺${totalCost.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Maliyet</div></div>
       <div class="stat-card"><div class="stat-num" style="color:var(--accent)">₺${totalProfit.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Kar</div></div>
       <div class="stat-card"><div class="stat-num">%${margin}</div><div class="stat-label">Kar Marjı</div></div>
     </div>
-
-    <!-- ŞUBE BAZLI -->
-    <div style="background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:20px">
-      <div class="section-title">🏪 Şube Bazlı Özet</div>
-      ${Object.keys(cafeStats).length === 0 ? '<div style="color:var(--text-soft);font-size:13px;text-align:center;padding:20px">Veri yok</div>' : `
-      <table class="prod-table">
-        <thead><tr><th>Şube</th><th>Sipariş</th><th>Ciro</th><th>Maliyet</th><th>Kar</th><th>Marj</th></tr></thead>
-        <tbody>
-          ${Object.entries(cafeStats).sort((a,b) => b[1].revenue - a[1].revenue).map(([cafe, s]) => `
-            <tr>
-              <td style="font-weight:600">${cafe}</td>
-              <td>${s.count}</td>
-              <td style="color:#22c55e;font-weight:600">₺${s.revenue.toLocaleString('tr-TR')}</td>
-              <td style="color:#ef4444">₺${s.cost.toLocaleString('tr-TR',{maximumFractionDigits:0})}</td>
-              <td style="font-weight:700;color:${s.profit>=0?'#22c55e':'#ef4444'}">₺${s.profit.toLocaleString('tr-TR',{maximumFractionDigits:0})}</td>
-              <td>%${s.revenue>0?((s.profit/s.revenue)*100).toFixed(1):0}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`}
-    </div>
-
-    <!-- EN ÇOK SİPARİŞ EDİLEN ÜRÜNLER -->
-    <div style="background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:20px">
-      <div class="section-title">⭐ En Çok Sipariş Edilen Ürünler</div>
-      ${topProducts.length === 0 ? '<div style="color:var(--text-soft);font-size:13px;text-align:center;padding:20px">Veri yok</div>' : `
-      <table class="prod-table">
-        <thead><tr><th>Ürün</th><th>Toplam Adet</th><th>Toplam Ciro</th></tr></thead>
-        <tbody>
-          ${topProducts.map(([name, s], i) => `
-            <tr>
-              <td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':'  '} ${name}</td>
-              <td style="font-weight:700">${s.qty} adet</td>
-              <td style="color:#22c55e;font-weight:600">₺${s.revenue.toLocaleString('tr-TR')}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`}
-    </div>
-
-    <!-- AYLIK SİPARİŞ ÇIKTISI -->
-    <div style="background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:20px">
-      <div class="section-title">📄 Aylık Sipariş Çıktısı</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end">
-        <div>
-          <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Ay</label>
-          <select id="report-month" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;min-width:160px">
-            <option value="">Tüm Zamanlar</option>
-            ${months.map(m => {
-              const [y, mo] = m.split('-');
-              return `<option value="${m}">${monthNames[parseInt(mo)-1]} ${y}</option>`;
-            }).join('')}
-          </select>
-        </div>
-        <div>
-          <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Şube</label>
-          <select id="report-cafe" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;min-width:180px">
-            <option value="">Tüm Şubeler</option>
-            ${cafeList.map(c => `<option value="${c}">${c}</option>`).join('')}
-          </select>
-        </div>
-        <button onclick="printMonthlyReport()" style="background:var(--accent);color:var(--text);border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:700">🖨️ Çıktı Al</button>
-        <button onclick="renderMonthlyPreview()" style="background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:600">👁️ Önizle</button>
-      </div>
-      <div id="monthly-preview"></div>
-    </div>
-
-    <!-- SİPARİŞ DETAYLARI -->
-    <div class="section-title" style="margin-top:8px">📋 Sipariş Detayları</div>
+    
     ${orderReports.length === 0 ? '<div class="no-orders">📊<br><br>Henüz tamamlanan sipariş yok</div>' :
       orderReports.map(o => `
         <div class="order-card tamamlandi" style="margin-bottom:16px">
@@ -1647,14 +1374,17 @@ window.renderAdminReports = async function() {
             <div class="order-date">${o.date}</div>
           </div>
           <div style="font-weight:600;font-size:13px;color:#444;margin-bottom:10px">🏪 ${o.cafe}</div>
+          
           <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px">
-            <thead><tr style="background:var(--surface)">
-              <th style="padding:8px;text-align:left">Ürün</th>
-              <th style="padding:8px;text-align:right">Adet</th>
-              <th style="padding:8px;text-align:right">Satış</th>
-              <th style="padding:8px;text-align:right">Maliyet</th>
-              <th style="padding:8px;text-align:right">Kar</th>
-            </tr></thead>
+            <thead>
+              <tr style="background:var(--surface)">
+                <th style="padding:8px;text-align:left;border-radius:6px 0 0 6px">Ürün</th>
+                <th style="padding:8px;text-align:right">Adet</th>
+                <th style="padding:8px;text-align:right">Satış</th>
+                <th style="padding:8px;text-align:right">Maliyet</th>
+                <th style="padding:8px;text-align:right;border-radius:0 6px 6px 0">Kar</th>
+              </tr>
+            </thead>
             <tbody>
               ${o.itemDetails.map(i => `
                 <tr style="border-bottom:1px solid var(--border)">
@@ -1662,91 +1392,17 @@ window.renderAdminReports = async function() {
                   <td style="padding:8px;text-align:right">${i.qty}</td>
                   <td style="padding:8px;text-align:right">₺${i.revenue.toLocaleString('tr-TR')}</td>
                   <td style="padding:8px;text-align:right;color:#ef4444">₺${i.cost.toLocaleString('tr-TR',{maximumFractionDigits:2})}</td>
-                  <td style="padding:8px;text-align:right;font-weight:700;color:${i.profit>=0?'#22c55e':'#ef4444'}">₺${i.profit.toLocaleString('tr-TR',{maximumFractionDigits:2})}</td>
+                  <td style="padding:8px;text-align:right;font-weight:700;color:${i.profit>=0?'#22c55e':'#ef4444'}">₺${i.profit.toLocaleString('tr-TR',{maximumFractionDigits:2})} <span style="font-size:10px;color:var(--text-soft)">(${i.margin}%)</span></td>
                 </tr>`).join('')}
             </tbody>
           </table>
+          
           <div style="display:flex;justify-content:space-between;padding:10px;background:var(--surface);border-radius:8px;font-weight:700">
             <span>Sipariş Karı</span>
             <span style="color:${o.orderProfit>=0?'#22c55e':'#ef4444'}">₺${o.orderProfit.toLocaleString('tr-TR',{maximumFractionDigits:2})} <span style="font-size:12px;font-weight:400;color:var(--text-soft)">(${o.total>0?((o.orderProfit/o.total)*100).toFixed(1):0}% marj)</span></span>
           </div>
-        </div>`).join('')}`;
-
-  // Preview ve print fonksiyonlarını tanımla
-  window._orderReportsCache = orderReports;
-}
-
-window.renderMonthlyPreview = function() {
-  const month = document.getElementById('report-month')?.value;
-  const cafe = document.getElementById('report-cafe')?.value;
-  const orders = getFilteredOrders(window._orderReportsCache || [], month, cafe);
-  const el = document.getElementById('monthly-preview');
-  if (orders.length === 0) { el.innerHTML = '<div style="color:var(--text-soft);font-size:13px;text-align:center;padding:20px">Seçili dönemde sipariş yok</div>'; return; }
-  const total = orders.reduce((s,o) => s+o.total, 0);
-  const monthNames = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-  let label = cafe || 'Tüm Şubeler';
-  if (month) { const [y,m] = month.split('-'); label += ` — ${monthNames[parseInt(m)-1]} ${y}`; }
-  el.innerHTML = `
-    <div style="background:var(--surface);border-radius:10px;padding:16px;font-size:13px">
-      <div style="font-weight:700;margin-bottom:10px">${label} — ${orders.length} Sipariş — Toplam: ₺${total.toLocaleString('tr-TR')}</div>
-      <table class="prod-table">
-        <thead><tr><th>No</th><th>Tarih</th><th>Şube</th><th>Ürünler</th><th>Toplam</th></tr></thead>
-        <tbody>
-          ${orders.map(o => `<tr>
-            <td><span class="code-tag">${o.num}</span></td>
-            <td style="font-size:12px">${o.date}</td>
-            <td style="font-weight:600">${o.cafe}</td>
-            <td style="font-size:12px">${o.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}</td>
-            <td style="font-weight:700">₺${o.total.toLocaleString('tr-TR')}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>`;
-}
-
-function getFilteredOrders(orders, month, cafe) {
-  return orders.filter(o => {
-    if (cafe && o.cafe !== cafe) return false;
-    if (month) {
-      const d = new Date(o.createdAt);
-      const om = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-      if (om !== month) return false;
-    }
-    return true;
-  });
-}
-
-window.printMonthlyReport = function() {
-  const month = document.getElementById('report-month')?.value;
-  const cafe = document.getElementById('report-cafe')?.value;
-  const orders = getFilteredOrders(window._orderReportsCache || [], month, cafe);
-  const monthNames = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-  let label = cafe || 'Tüm Şubeler';
-  if (month) { const [y,m] = month.split('-'); label += ` — ${monthNames[parseInt(m)-1]} ${y}`; }
-  const total = orders.reduce((s,o) => s+o.total, 0);
-  const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Sipariş Raporu</title>
-    <style>body{font-family:Arial,sans-serif;padding:32px;max-width:800px;margin:0 auto}h1{font-size:20px}
-    .meta{color:#666;font-size:13px;margin-bottom:20px}table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px}
-    th,td{padding:8px 10px;border:1px solid #ddd;text-align:left}th{background:#f5f5f5;font-weight:600}
-    .total{font-size:15px;font-weight:700;text-align:right;padding:10px 0}.footer{color:#888;font-size:12px;margin-top:20px;border-top:1px solid #ddd;padding-top:12px}
-    @media print{button{display:none}}</style></head><body>
-    <h1>📦 Sipariş Raporu</h1>
-    <div class="meta"><b>${label}</b> &nbsp;|&nbsp; ${orders.length} sipariş &nbsp;|&nbsp; Oluşturma: ${new Date().toLocaleDateString('tr-TR')}</div>
-    <table><thead><tr><th>No</th><th>Tarih</th><th>Şube</th><th>Ürünler</th><th>Toplam</th></tr></thead>
-    <tbody>${orders.map(o => `<tr>
-      <td>${o.num}</td>
-      <td style="white-space:nowrap">${o.date}</td>
-      <td style="font-weight:600">${o.cafe}</td>
-      <td>${o.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}</td>
-      <td style="font-weight:700;white-space:nowrap">₺${o.total.toLocaleString('tr-TR')}</td>
-    </tr>`).join('')}</tbody></table>
-    <div class="total">Genel Toplam: ₺${total.toLocaleString('tr-TR')}</div>
-    <div class="footer">Flat Coffee & Cake &nbsp;|&nbsp; ${new Date().toLocaleDateString('tr-TR')}</div>
-    <br><button onclick="window.print()">🖨️ Yazdır / PDF Kaydet</button>
-    </body></html>`);
-  win.document.close();
-}
+        </div>`).join('')
+    }`;
 }
 
 // =====================
