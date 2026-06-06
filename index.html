@@ -645,7 +645,7 @@ window.renderCart = function() {
       <div class="cart-item-info">
         <div class="cart-item-name">${p.name} <span class="code-tag">#${p.code}</span></div>
         <div class="cart-item-price">
-          KDV hariç: ₺${p.price} × ${cart[id]} = ₺${(p.price*cart[id]formatTRInt())}
+          KDV hariç: ₺${p.price} × ${cart[id]} = ₺${formatTRInt(p.price*cart[id])}
         </div>
         <div style="font-size:11px;color:var(--text-soft)">
           KDV (%${Math.round((p.vat??0.20)*100)}): ₺${formatTR(p.price*cart[id]*(p.vat??0.20))} &nbsp;|&nbsp; 
@@ -703,6 +703,11 @@ window.submitOrder = async function(total) {
   btn.disabled = true; btn.textContent = 'Gönderiliyor...';
   const items = Object.keys(cart).map(id => { const p = products.find(x=>x.id==id); return { id: p.id, code: p.code, name: p.name, qty: cart[id], price: p.price }; });
   const orderNum = 'SP' + Date.now().toString().slice(-6);
+  const totalVat = items.reduce((s, i) => {
+    const p = products.find(x => x.id == i.id);
+    return s + (i.price * i.qty * (p?.vat ?? 0.20));
+  }, 0);
+  const totalWithVat = total + totalVat;
   try {
     await addDoc(collection(db, 'orders'), {
       num: orderNum, uid: currentUser.uid, cafe, contact, phone,
@@ -713,7 +718,7 @@ window.submitOrder = async function(total) {
       }),
       total, totalVat, totalWithVat, status: 'bekliyor',
       createdAt: new Date().toISOString(),
-      date: new formatTRInt(Date())
+      date: new Date().toLocaleString('tr-TR')
     });
     // Stok ve istatistikler tamamlandıya çekilince güncellenecek
     cart = {}; updateCartBadge();
@@ -745,7 +750,7 @@ window.renderMyOrders = function() {
   el.innerHTML = `
     <div class="stats-row" style="margin-bottom:20px">
       <div class="stat-card"><div class="stat-num">${mine.length}</div><div class="stat-label">Toplam Sipariş</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺formatTRInt(${toplamHarcama)}</div><div class="stat-label">Toplam Harcama</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺${formatTRInt(toplamHarcama)}</div><div class="stat-label">Toplam Harcama</div></div>
     </div>
     ${mine.map(o => `
       <div class="history-card ${o.status}">
@@ -792,7 +797,7 @@ window.renderAdminOrders = function() {
       <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${counts.bekliyor}</div><div class="stat-label">Bekleyen</div></div>
       <div class="stat-card"><div class="stat-num" style="color:#3b82f6">${counts.hazirlaniyor}</div><div class="stat-label">Hazırlanıyor</div></div>
       <div class="stat-card"><div class="stat-num" style="color:#22c55e">${counts.tamamlandi}</div><div class="stat-label">Tamamlandı</div></div>
-      <div class="stat-card"><div class="stat-num">₺formatTRInt(${ciro)}</div><div class="stat-label">Ciro</div></div>
+      <div class="stat-card"><div class="stat-num">₺${formatTRInt(ciro)}</div><div class="stat-label">Ciro</div></div>
     </div>
     <div class="filter-row">
       <span style="font-size:13px;font-weight:600">Filtre:</span>
@@ -1359,7 +1364,7 @@ window.loadProductStockHistory = async function(productId) {
             <td style="font-weight:600">${e.qty} adet</td>
             <td style="color:${remaining<=0?'#ef4444':remaining<e.qty?'#f59e0b':'#22c55e'};font-weight:600">${remaining} adet</td>
             <td>₺${e.cost}/adet</td>
-            <td style="font-weight:600">₺formatTRInt(${(e.qty*e.cost))}</td>
+            <td style="font-weight:600">₺${formatTRInt(e.qty*e.cost)}</td>
             <td><button class="del-btn" onclick="deleteStockEntry('${e.id}',${e.qty},'${productId}')">🗑️</button></td>
           </tr>`;
         }).join('')}
@@ -1494,13 +1499,21 @@ window.submitAdminOrder = async function() {
   const user = adminUsers.find(u => u.uid === uid);
   const items = Object.keys(adminOrderCart).map(id => { const p=products.find(x=>x.id==id); return {id:p.id,code:p.code,name:p.name,qty:adminOrderCart[id],price:p.price}; });
   const total = items.reduce((s,i)=>s+i.price*i.qty, 0);
+  const totalVat = items.reduce((s, i) => {
+    const p = products.find(x => x.id == i.id);
+    return s + (i.price * i.qty * (p?.vat ?? 0.20));
+  }, 0);
+  const totalWithVat = total + totalVat;
   const orderNum = 'SP' + Date.now().toString().slice(-6);
   const note = document.getElementById('ao-note')?.value || '';
   await addDoc(collection(db, 'orders'), {
     num: orderNum, uid, cafe: user.cafe, contact: user.name, phone: user.phone,
-    note, items, total, status: 'bekliyor',
+    note, items: items.map(i => {
+      const p = products.find(x => x.id == i.id);
+      return {...i, vat: p?.vat ?? 0.20, vatAmount: i.price * i.qty * (p?.vat ?? 0.20)};
+    }), total, totalVat, totalWithVat, status: 'bekliyor',
     createdAt: new Date().toISOString(),
-    date: new formatTRInt(Date()),
+    date: new Date().toLocaleString('tr-TR'),
     addedByAdmin: true
   });
   // Kullanıcı istatistikleri güncelle
@@ -1606,9 +1619,9 @@ window.renderAdminReports = async function() {
   
   el.innerHTML = `
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺formatTRInt(${totalRevenue)}</div><div class="stat-label">Toplam Ciro</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:#ef4444">₺formatTRInt(${totalCost)}</div><div class="stat-label">Toplam Maliyet</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">₺formatTRInt(${totalProfit)}</div><div class="stat-label">Toplam Kar</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺${formatTRInt(totalRevenue)}</div><div class="stat-label">Toplam Ciro</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#ef4444">₺${formatTRInt(totalCost)}</div><div class="stat-label">Toplam Maliyet</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">₺${formatTRInt(totalProfit)}</div><div class="stat-label">Toplam Kar</div></div>
       <div class="stat-card"><div class="stat-num">%${margin}</div><div class="stat-label">Kar Marjı</div></div>
     </div>
     
@@ -1636,16 +1649,16 @@ window.renderAdminReports = async function() {
                 <tr style="border-bottom:1px solid var(--border)">
                   <td style="padding:8px">${i.name}</td>
                   <td style="padding:8px;text-align:right">${i.qty}</td>
-                  <td style="padding:8px;text-align:right">₺formatTRInt(${i.revenue)}</td>
-                  <td style="padding:8px;text-align:right;color:#ef4444">₺formatTRInt(${i.cost)}</td>
-                  <td style="padding:8px;text-align:right;font-weight:700;color:${i.profit>=0?'#22c55e':'#ef4444'}">₺formatTRInt(${i.profit)} <span style="font-size:10px;color:var(--text-soft)">(${i.margin}%)</span></td>
+                  <td style="padding:8px;text-align:right">₺${formatTRInt(i.revenue)}</td>
+                  <td style="padding:8px;text-align:right;color:#ef4444">₺${formatTRInt(i.cost)}</td>
+                  <td style="padding:8px;text-align:right;font-weight:700;color:${i.profit>=0?'#22c55e':'#ef4444'}">₺${formatTRInt(i.profit)} <span style="font-size:10px;color:var(--text-soft)">(${i.margin}%)</span></td>
                 </tr>`).join('')}
             </tbody>
           </table>
           
           <div style="display:flex;justify-content:space-between;padding:10px;background:var(--surface);border-radius:8px;font-weight:700">
             <span>Sipariş Karı</span>
-            <span style="color:${o.orderProfit>=0?'#22c55e':'#ef4444'}">₺formatTRInt(${o.orderProfit)} <span style="font-size:12px;font-weight:400;color:var(--text-soft)">(${o.total>0?((o.orderProfit/o.total)*100).toFixed(1):0}% marj)</span></span>
+            <span style="color:${o.orderProfit>=0?'#22c55e':'#ef4444'}">₺${formatTRInt(o.orderProfit)} <span style="font-size:12px;font-weight:400;color:var(--text-soft)">(${o.total>0?((o.orderProfit/o.total)*100).toFixed(1):0}% marj)</span></span>
           </div>
         </div>`).join('')
     }`;
@@ -1694,7 +1707,7 @@ window.renderAdminUsers = async function() {
           <td><input value="${u.phone||''}" id="ue-phone-${u.uid}" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;width:120px"></td>
           <td style="font-size:12px;color:var(--text-soft)">${u.email||'-'}</td>
           <td>${u.orderCount||0}</td>
-          <td>₺${(u.totalSpent||formatTRInt(0))}</td>
+          <td>₺${formatTRInt(u.totalSpent||0)}</td>
           <td style="font-size:11px;color:var(--text-soft)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('tr-TR') : '-'}</td>
           <td style="display:flex;gap:4px;flex-wrap:wrap">
             ${u.approved===false ? `<button onclick="approveUser('${u.uid}')" style="background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">✅ Onayla</button>` : ''}
@@ -1727,7 +1740,7 @@ window.renderCustomerHistory = function() {
   el.innerHTML = `
     <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
       <div style="background:var(--surface);border-radius:8px;padding:10px 16px;font-size:13px"><span style="color:var(--text-soft)">Toplam Sipariş:</span> <b>${orders.length}</b></div>
-      <div style="background:var(--surface);border-radius:8px;padding:10px 16px;font-size:13px"><span style="color:var(--text-soft)">Tamamlanan Ciro:</span> <b style="color:#22c55e">₺formatTRInt(${totalSpent)}</b></div>
+      <div style="background:var(--surface);border-radius:8px;padding:10px 16px;font-size:13px"><span style="color:var(--text-soft)">Tamamlanan Ciro:</span> <b style="color:#22c55e">₺${formatTRInt(totalSpent)}</b></div>
     </div>
     ${orders.map(o => `
       <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${o.status==='tamamlandi'?'#22c55e':o.status==='bekliyor'?'#f59e0b':o.status==='hazirlaniyor'?'#3b82f6':'#ef4444'}">
@@ -1739,7 +1752,7 @@ window.renderCustomerHistory = function() {
           ${o.items.map(i=>`<span class="code-tag">#${i.code}</span> ${i.name} ×${i.qty} = <b>₺${i.price*i.qty}</b>`).join(' &nbsp;|&nbsp; ')}
         </div>
         ${o.note?`<div style="font-size:12px;color:var(--text-soft);margin-bottom:6px">📝 ${o.note}</div>`:''}
-        <div style="font-weight:700">Toplam: ₺formatTRInt(${o.total)}</div>
+        <div style="font-weight:700">Toplam: ₺${formatTRInt(o.total)}</div>
       </div>`).join('')}`;
 }
 
