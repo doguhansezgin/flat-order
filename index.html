@@ -3,20 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
 <title>Flat Order</title>
 <style>
   :root {
-    --bg: #FBF9F6;
-    --surface: #EDE9E0;
-    --border: #D4CFC4;
-    --text: #1C1917;
-    --text-soft: #78716C;
-    --accent: #F59E0B;
-    --accent-hover: #D97706;
-    --nav-bg: #1C1917;
+    --bg: #f2f2f2;
+    --surface: #c8d8e4;
+    --border: #c8d8e4;
+    --text: #2b6777;
+    --text-soft: #52ab98;
+    --accent: #52ab98;
+    --accent-hover: #2b6777;
+    --nav-bg: #2b6777;
+    --white: #ffffff;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  body { font-family: 'Barlow Condensed', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
   /* NAV */
   nav { background: var(--nav-bg); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 56px; position: sticky; top: 0; z-index: 100; }
@@ -24,14 +26,14 @@
   nav .nav-right { display: flex; align-items: center; gap: 8px; }
   nav button { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 13px; transition: background 0.2s; }
   nav button.active, nav button:hover { background: rgba(255,255,255,0.15); }
-  .cart-badge { background: var(--accent); color: #000; border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700; margin-left: 4px; }
+  .cart-badge { background: var(--accent); color: white; border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700; margin-left: 4px; }
   .user-pill { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 5px 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
   .user-avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #000; }
 
   /* AUTH SCREEN */
   #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
-  .auth-box { background: #FFFFFF; border-radius: 20px; padding: 40px; max-width: 400px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
-  .auth-logo { text-align: center; font-size: 32px; margin-bottom: 8px; }
+  .auth-box { font-family: 'Barlow Condensed', sans-serif; background: #FFFFFF; border-radius: 20px; padding: 40px; max-width: 400px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+  .auth-logo { text-align: center; margin-bottom: 16px; }
   .auth-title { text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
   .auth-sub { text-align: center; color: var(--text-soft); font-size: 13px; margin-bottom: 28px; }
   .auth-tabs { display: flex; background: var(--bg); border-radius: 10px; padding: 4px; margin-bottom: 24px; }
@@ -84,7 +86,7 @@
   .summary-total { font-weight: 700; font-size: 18px; border-top: 2px solid var(--border); padding-top: 10px; margin-top: 10px; }
   .order-form input, .order-form textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 14px; margin-bottom: 10px; font-family: inherit; }
   .order-form textarea { height: 80px; resize: vertical; }
-  .submit-btn { width: 100%; background: var(--accent); color: var(--text); border: none; border-radius: 10px; padding: 14px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .submit-btn { width: 100%; background: var(--accent); color: white; border: none; border-radius: 10px; padding: 14px; font-size: 16px; font-weight: 700; cursor: pointer; }
   .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
 
   /* ORDERS HISTORY */
@@ -171,8 +173,32 @@
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-box">
-    <div class="auth-logo">📦</div>
-    <div class="auth-title">Flat Order</div>
+    <div class="auth-logo" style="text-align:center;margin-bottom:8px"><?xml version="1.0" encoding="UTF-8"?>
+<svg id="Katman_1" data-name="Katman 1" xmlns="http://www.w3.org/2000/svg" height="60" style="display:block;margin:0 auto" viewBox="0 0 4210.74 2204.65">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #1a1a18;
+      }
+
+      .cls-1, .cls-2 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2 {
+        fill: #fdfeff;
+        stroke: #1a1a18;
+        stroke-miterlimit: 22.93;
+        stroke-width: .57px;
+      }
+    </style>
+  </defs>
+  <path class="cls-2" d="M324.67,2151.04c-.14-95.47-164.64-259.93-260.1-260.2l-64.15-.18,25.15-59.01c43.16-101.27,71.26-212.88,90.12-321.12,23.4-134.29,33.71-271.95,33.71-408.2s-10.31-273.91-33.71-408.2c-18.86-108.24-46.95-219.85-90.12-321.12L.43,313.99l64.15-.18c95.46-.27,259.96-164.73,260.1-260.2l.08-53.26,51.92,11.86c258.23,59.02,523.65,97.45,787.11,123.73,312.51,31.18,627.51,45.11,941.53,45.11s629.02-13.93,941.53-45.11c263.46-26.29,528.88-64.72,787.11-123.73l51.92-11.86.08,53.26c.13,95.47,164.7,260.02,260.16,260.2l64.21.13-25.17,59.07c-43.16,101.27-71.25,212.88-90.11,321.12-23.4,134.29-33.71,271.94-33.71,408.2s10.31,273.91,33.71,408.2c18.86,108.24,46.95,219.85,90.12,321.12l25.17,59.07c-164.76,8.95-306.41,139.29-324.45,313.58l-51.92-11.86c-258.23-59.02-523.65-97.45-787.11-123.73-312.51-31.18-627.51-45.11-941.53-45.11s-629.02,13.93-941.53,45.11c-263.46,26.29-528.88,64.72-787.11,123.73l-51.92,11.86-.08-53.25Z"/>
+  <path class="cls-1" d="M3843.44,53.67c.17,119.25,183.33,302.43,302.6,302.66-78.07,183.17-127.23,449.49-127.23,745.99s49.16,562.83,127.23,745.99c-119.27.23-302.43,183.41-302.6,302.66-462.47-105.69-1071.12-169.91-1738.11-169.91s-1275.64,64.22-1738.11,169.91c-.17-119.21-183.23-302.32-302.5-302.66,78.07-183.17,127.23-449.49,127.23-745.99s-49.16-562.83-127.23-745.99c119.27-.34,302.33-183.45,302.5-302.66,462.47,105.69,1071.12,169.91,1738.11,169.91s1275.64-64.22,1738.11-169.91h0ZM411.68,2083.01c244.21-52.84,494.04-88.27,742.25-113.03,315.78-31.51,634.07-45.6,951.38-45.6s635.6,14.1,951.38,45.6c248.21,24.76,498.05,60.19,742.26,113.03,37.84-112.27,157.36-233.73,270.05-275.92-32.55-90.4-55.4-185.9-71.71-279.53-24.38-139.92-35.18-283.26-35.18-425.23s10.8-285.31,35.18-425.23c16.31-93.63,39.16-189.13,71.71-279.53-112.69-42.19-232.21-163.65-270.05-275.92-244.21,52.84-494.04,88.27-742.25,113.03-315.78,31.51-634.07,45.6-951.38,45.6s-635.6-14.1-951.38-45.6c-248.21-24.76-498.05-60.19-742.25-113.03-37.83,112.25-157.31,233.67-269.96,275.89,32.55,90.41,55.41,185.92,71.72,279.56,24.38,139.92,35.18,283.26,35.18,425.23s-10.8,285.31-35.18,425.23c-16.32,93.64-39.17,189.15-71.73,279.56,112.65,42.22,232.13,163.64,269.96,275.89h0ZM3764.84,186.81c-231.85,48.02-467,80.78-702.5,104.27-317.91,31.72-637.56,45.88-957.01,45.88s-639.1-14.17-957.01-45.88c-235.5-23.5-470.65-56.26-702.5-104.27-47.71,96.59-138.79,189.39-234.03,240.82,24.97,78.31,43.44,158.95,57.52,239.73,24.98,143.38,36.02,289.47,36.02,434.96s-11.04,291.58-36.02,434.96c-14.08,80.78-32.55,161.43-57.52,239.73,95.24,51.42,186.32,144.22,234.03,240.81,231.85-48.02,467-80.78,702.5-104.27,317.91-31.72,637.56-45.88,957.01-45.88s639.1,14.17,957.01,45.88c235.5,23.5,470.65,56.26,702.51,104.27,47.72-96.61,138.84-189.45,234.11-240.86-24.96-78.29-43.43-158.92-57.5-239.69-24.98-143.38-36.02-289.47-36.02-434.96s11.04-291.58,36.02-434.96c14.07-80.76,32.54-161.39,57.5-239.69-95.28-51.41-186.39-144.25-234.11-240.87h0ZM245.6,1763.69c86.24,51.87,166.77,134.09,215.41,222.09,226.1-45.9,454.97-77.53,684.48-100.43,318.87-31.81,639.41-46.02,959.83-46.02s640.95,14.21,959.83,46.02c229.51,22.9,458.38,54.52,684.48,100.43,48.66-88.02,129.22-170.28,215.5-222.14-21.95-72.6-38.6-146.8-51.61-221.49-25.28-145.08-36.44-292.61-36.44-439.83s11.16-294.74,36.44-439.82c13.01-74.68,29.66-148.89,51.61-221.49-86.28-51.87-166.84-134.12-215.5-222.14-226.1,45.9-454.97,77.53-684.48,100.43-318.87,31.81-639.41,46.02-959.83,46.02s-640.95-14.21-959.83-46.02c-229.51-22.9-458.38-54.52-684.48-100.43-48.65,87.99-129.17,170.22-215.41,222.09,21.96,72.61,38.61,146.84,51.62,221.54,25.28,145.08,36.44,292.61,36.44,439.83s-11.16,294.74-36.44,439.83c-13.02,74.7-29.67,148.93-51.63,221.54Z"/>
+  <path class="cls-1" d="M1011.96,1590.64l34.63,35.92h61.63l34.63-35.92v-30.71h-43.77v22.53h-44.31v-132.39h44.31v23.12h43.77v-30.49l-34.63-36.41h-61.63l-34.63,36.41v147.94h0ZM1175.81,1590.64l34.63,35.92h61.63l34.63-35.92v-147.94l-34.63-36.41h-61.63l-34.63,36.41v147.94h0ZM1262.93,1582.47h-43.02v-132.39h43.02v132.39h0ZM1339.83,1602.79v23.77h86.74v-44.1h-21.51v-43.67h43.93v-44.1h-43.93v-44.63h43.93v23.23h42.59v-67h-151.75v43.77h21.13v132.39h-21.13v20.33h0ZM1524.92,1602.79v23.77h86.74v-44.1h-21.51v-43.67h43.93v-44.1h-43.93v-44.63h43.93v23.23h42.59v-67h-151.75v43.77h21.13v132.39h-21.13v20.33h0ZM1704.53,1582.47v44.1h153.64v-66.68h-44.42v22.59h-43.99v-43.67h43.99v-44.1h-43.99v-44.63h43.99v23.23h44.42v-67h-153.64v43.77h21.13v132.39h-21.13ZM1891.4,1582.47v44.1h153.64v-66.68h-44.42v22.59h-43.99v-43.67h43.99v-44.1h-43.99v-44.63h43.99v23.23h44.42v-67h-153.64v43.77h21.13v132.39h-21.13ZM2214.21,1626.56h62.86l6.45-8.17,7.1,8.17h42.7l-25.54-32,3.98-2.8v-39.69h-40.33l-13.23-16.35,32.43-31.62v-38.66l-36.57-36.41h-38.72l-35.92,36.41v30.49l16.4,18.55-16.4,16.08v61.2l34.79,34.79h0ZM2234.49,1495.94h-10.97v-22.64h23.02v22.64h-12.05ZM2223.52,1566.44v-18.61l29.31,34.63h-29.31v-16.03h0ZM2458.46,1590.64l34.63,35.92h61.63l34.63-35.92v-30.71h-43.77v22.53h-44.31v-132.39h44.31v23.12h43.77v-30.49l-34.63-36.41h-61.63l-34.63,36.41v147.94h0ZM2723.52,1517.24h-25.38l12.1-39.79c5.27,12.37,9.68,25.65,13.28,39.79h0ZM2688.83,1406.24l-54.85,176.22h-22.64v44.1h87.87v-44.1h-20.92l6.45-22.64h52l7.04,22.64h-21.4v44.1h86.79v-44.1h-21.56l-54.85-176.22h-43.93ZM2836.71,1582.47v44.1h84.43v-44.1h-19.04v-18.28l13.28-17.64,28.07,35.92h-16.08v44.1h84.43v-44.1h-17.32l-51.03-66.25,51.03-66.14h17.32v-43.77h-84.43v43.77h18.61l-43.88,59.05v-59.05h19.04v-43.77h-84.43v43.77h21.3v132.39h-21.3ZM3045.15,1582.47v44.1h153.64v-66.68h-44.42v22.59h-43.99v-43.67h43.99v-44.1h-43.99v-44.63h43.99v23.23h44.42v-67h-153.64v43.77h21.13v132.39h-21.13Z"/>
+  <path class="cls-1" d="M849.95,1205.19v81.16h296.18v-150.57h-73.45v-149.1h150.02v-150.57h-150.02v-152.41h150.02v79.32h145.43v-228.79h-518.18v149.47h72.16v452.08h-72.16v69.41h0ZM1444.52,1209.42v76.94h524.43v-227.69h-151.67v77.12h-150.2v-452.08h77.31v-149.47h-299.86v149.47h76.39v452.08h-76.39v73.63h0ZM2446.18,913.05h-86.67l41.31-135.88c17.99,42.23,33.05,87.59,45.35,135.88h0ZM2327.74,534.05l-187.29,601.73h-77.31v150.57h300.04v-150.57h-71.43l22.03-77.3h177.56l24.05,77.3h-73.08v150.57h296.37v-150.57h-73.63l-187.29-601.73h-150.02ZM2907.99,1135.78v150.57h302.24v-150.57h-79.69v-452.08h79.69v79.32h150.57v-228.79h-603.38v228.79h150.57v-79.32h71.98v452.08h-71.98Z"/>
+</svg></div>
+    <div class="auth-title" style="color:#2b6777">Flat Order</div>
     <div class="auth-sub">Şube sipariş sistemi</div>
     <div class="auth-tabs">
       <div class="auth-tab active" onclick="switchAuthTab('login')">Giriş Yap</div>
@@ -213,7 +239,24 @@
 <!-- MAIN APP -->
 <div id="app">
   <nav>
-    <div class="logo">📦 Flat Order</div>
+    <div class="logo"><?xml version="1.0" encoding="UTF-8"?>
+<svg id="Katman_1" data-name="Katman 1" xmlns="http://www.w3.org/2000/svg" height="32" style="fill:white" viewBox="0 0 4210.74 2204.65">
+  <defs>
+    <style>
+      .cls-1 { fill: white; }
+
+      .cls-1, .cls-2 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2 { fill: transparent; stroke: white; stroke-miterlimit: 22.93; stroke-width: 12px; }
+    </style>
+  </defs>
+  <path class="cls-2" d="M324.67,2151.04c-.14-95.47-164.64-259.93-260.1-260.2l-64.15-.18,25.15-59.01c43.16-101.27,71.26-212.88,90.12-321.12,23.4-134.29,33.71-271.95,33.71-408.2s-10.31-273.91-33.71-408.2c-18.86-108.24-46.95-219.85-90.12-321.12L.43,313.99l64.15-.18c95.46-.27,259.96-164.73,260.1-260.2l.08-53.26,51.92,11.86c258.23,59.02,523.65,97.45,787.11,123.73,312.51,31.18,627.51,45.11,941.53,45.11s629.02-13.93,941.53-45.11c263.46-26.29,528.88-64.72,787.11-123.73l51.92-11.86.08,53.26c.13,95.47,164.7,260.02,260.16,260.2l64.21.13-25.17,59.07c-43.16,101.27-71.25,212.88-90.11,321.12-23.4,134.29-33.71,271.94-33.71,408.2s10.31,273.91,33.71,408.2c18.86,108.24,46.95,219.85,90.12,321.12l25.17,59.07c-164.76,8.95-306.41,139.29-324.45,313.58l-51.92-11.86c-258.23-59.02-523.65-97.45-787.11-123.73-312.51-31.18-627.51-45.11-941.53-45.11s-629.02,13.93-941.53,45.11c-263.46,26.29-528.88,64.72-787.11,123.73l-51.92,11.86-.08-53.25Z"/>
+  <path class="cls-1" d="M3843.44,53.67c.17,119.25,183.33,302.43,302.6,302.66-78.07,183.17-127.23,449.49-127.23,745.99s49.16,562.83,127.23,745.99c-119.27.23-302.43,183.41-302.6,302.66-462.47-105.69-1071.12-169.91-1738.11-169.91s-1275.64,64.22-1738.11,169.91c-.17-119.21-183.23-302.32-302.5-302.66,78.07-183.17,127.23-449.49,127.23-745.99s-49.16-562.83-127.23-745.99c119.27-.34,302.33-183.45,302.5-302.66,462.47,105.69,1071.12,169.91,1738.11,169.91s1275.64-64.22,1738.11-169.91h0ZM411.68,2083.01c244.21-52.84,494.04-88.27,742.25-113.03,315.78-31.51,634.07-45.6,951.38-45.6s635.6,14.1,951.38,45.6c248.21,24.76,498.05,60.19,742.26,113.03,37.84-112.27,157.36-233.73,270.05-275.92-32.55-90.4-55.4-185.9-71.71-279.53-24.38-139.92-35.18-283.26-35.18-425.23s10.8-285.31,35.18-425.23c16.31-93.63,39.16-189.13,71.71-279.53-112.69-42.19-232.21-163.65-270.05-275.92-244.21,52.84-494.04,88.27-742.25,113.03-315.78,31.51-634.07,45.6-951.38,45.6s-635.6-14.1-951.38-45.6c-248.21-24.76-498.05-60.19-742.25-113.03-37.83,112.25-157.31,233.67-269.96,275.89,32.55,90.41,55.41,185.92,71.72,279.56,24.38,139.92,35.18,283.26,35.18,425.23s-10.8,285.31-35.18,425.23c-16.32,93.64-39.17,189.15-71.73,279.56,112.65,42.22,232.13,163.64,269.96,275.89h0ZM3764.84,186.81c-231.85,48.02-467,80.78-702.5,104.27-317.91,31.72-637.56,45.88-957.01,45.88s-639.1-14.17-957.01-45.88c-235.5-23.5-470.65-56.26-702.5-104.27-47.71,96.59-138.79,189.39-234.03,240.82,24.97,78.31,43.44,158.95,57.52,239.73,24.98,143.38,36.02,289.47,36.02,434.96s-11.04,291.58-36.02,434.96c-14.08,80.78-32.55,161.43-57.52,239.73,95.24,51.42,186.32,144.22,234.03,240.81,231.85-48.02,467-80.78,702.5-104.27,317.91-31.72,637.56-45.88,957.01-45.88s639.1,14.17,957.01,45.88c235.5,23.5,470.65,56.26,702.51,104.27,47.72-96.61,138.84-189.45,234.11-240.86-24.96-78.29-43.43-158.92-57.5-239.69-24.98-143.38-36.02-289.47-36.02-434.96s11.04-291.58,36.02-434.96c14.07-80.76,32.54-161.39,57.5-239.69-95.28-51.41-186.39-144.25-234.11-240.87h0ZM245.6,1763.69c86.24,51.87,166.77,134.09,215.41,222.09,226.1-45.9,454.97-77.53,684.48-100.43,318.87-31.81,639.41-46.02,959.83-46.02s640.95,14.21,959.83,46.02c229.51,22.9,458.38,54.52,684.48,100.43,48.66-88.02,129.22-170.28,215.5-222.14-21.95-72.6-38.6-146.8-51.61-221.49-25.28-145.08-36.44-292.61-36.44-439.83s11.16-294.74,36.44-439.82c13.01-74.68,29.66-148.89,51.61-221.49-86.28-51.87-166.84-134.12-215.5-222.14-226.1,45.9-454.97,77.53-684.48,100.43-318.87,31.81-639.41,46.02-959.83,46.02s-640.95-14.21-959.83-46.02c-229.51-22.9-458.38-54.52-684.48-100.43-48.65,87.99-129.17,170.22-215.41,222.09,21.96,72.61,38.61,146.84,51.62,221.54,25.28,145.08,36.44,292.61,36.44,439.83s-11.16,294.74-36.44,439.83c-13.02,74.7-29.67,148.93-51.63,221.54Z"/>
+  <path class="cls-1" d="M1011.96,1590.64l34.63,35.92h61.63l34.63-35.92v-30.71h-43.77v22.53h-44.31v-132.39h44.31v23.12h43.77v-30.49l-34.63-36.41h-61.63l-34.63,36.41v147.94h0ZM1175.81,1590.64l34.63,35.92h61.63l34.63-35.92v-147.94l-34.63-36.41h-61.63l-34.63,36.41v147.94h0ZM1262.93,1582.47h-43.02v-132.39h43.02v132.39h0ZM1339.83,1602.79v23.77h86.74v-44.1h-21.51v-43.67h43.93v-44.1h-43.93v-44.63h43.93v23.23h42.59v-67h-151.75v43.77h21.13v132.39h-21.13v20.33h0ZM1524.92,1602.79v23.77h86.74v-44.1h-21.51v-43.67h43.93v-44.1h-43.93v-44.63h43.93v23.23h42.59v-67h-151.75v43.77h21.13v132.39h-21.13v20.33h0ZM1704.53,1582.47v44.1h153.64v-66.68h-44.42v22.59h-43.99v-43.67h43.99v-44.1h-43.99v-44.63h43.99v23.23h44.42v-67h-153.64v43.77h21.13v132.39h-21.13ZM1891.4,1582.47v44.1h153.64v-66.68h-44.42v22.59h-43.99v-43.67h43.99v-44.1h-43.99v-44.63h43.99v23.23h44.42v-67h-153.64v43.77h21.13v132.39h-21.13ZM2214.21,1626.56h62.86l6.45-8.17,7.1,8.17h42.7l-25.54-32,3.98-2.8v-39.69h-40.33l-13.23-16.35,32.43-31.62v-38.66l-36.57-36.41h-38.72l-35.92,36.41v30.49l16.4,18.55-16.4,16.08v61.2l34.79,34.79h0ZM2234.49,1495.94h-10.97v-22.64h23.02v22.64h-12.05ZM2223.52,1566.44v-18.61l29.31,34.63h-29.31v-16.03h0ZM2458.46,1590.64l34.63,35.92h61.63l34.63-35.92v-30.71h-43.77v22.53h-44.31v-132.39h44.31v23.12h43.77v-30.49l-34.63-36.41h-61.63l-34.63,36.41v147.94h0ZM2723.52,1517.24h-25.38l12.1-39.79c5.27,12.37,9.68,25.65,13.28,39.79h0ZM2688.83,1406.24l-54.85,176.22h-22.64v44.1h87.87v-44.1h-20.92l6.45-22.64h52l7.04,22.64h-21.4v44.1h86.79v-44.1h-21.56l-54.85-176.22h-43.93ZM2836.71,1582.47v44.1h84.43v-44.1h-19.04v-18.28l13.28-17.64,28.07,35.92h-16.08v44.1h84.43v-44.1h-17.32l-51.03-66.25,51.03-66.14h17.32v-43.77h-84.43v43.77h18.61l-43.88,59.05v-59.05h19.04v-43.77h-84.43v43.77h21.3v132.39h-21.3ZM3045.15,1582.47v44.1h153.64v-66.68h-44.42v22.59h-43.99v-43.67h43.99v-44.1h-43.99v-44.63h43.99v23.23h44.42v-67h-153.64v43.77h21.13v132.39h-21.13Z"/>
+  <path class="cls-1" d="M849.95,1205.19v81.16h296.18v-150.57h-73.45v-149.1h150.02v-150.57h-150.02v-152.41h150.02v79.32h145.43v-228.79h-518.18v149.47h72.16v452.08h-72.16v69.41h0ZM1444.52,1209.42v76.94h524.43v-227.69h-151.67v77.12h-150.2v-452.08h77.31v-149.47h-299.86v149.47h76.39v452.08h-76.39v73.63h0ZM2446.18,913.05h-86.67l41.31-135.88c17.99,42.23,33.05,87.59,45.35,135.88h0ZM2327.74,534.05l-187.29,601.73h-77.31v150.57h300.04v-150.57h-71.43l22.03-77.3h177.56l24.05,77.3h-73.08v150.57h296.37v-150.57h-73.63l-187.29-601.73h-150.02ZM2907.99,1135.78v150.57h302.24v-150.57h-79.69v-452.08h79.69v79.32h150.57v-228.79h-603.38v228.79h150.57v-79.32h71.98v452.08h-71.98Z"/>
+</svg></div>
     <div class="nav-right">
       <button onclick="showView('catalog')" id="btn-catalog" class="active">🛍️ Ürünler</button>
       <button onclick="showView('cart')" id="btn-cart">🛒 <span class="cart-badge" id="cart-count">0</span></button>
@@ -602,11 +645,11 @@ window.renderCart = function() {
       <div class="cart-item-info">
         <div class="cart-item-name">${p.name} <span class="code-tag">#${p.code}</span></div>
         <div class="cart-item-price">
-          KDV hariç: ₺${p.price} × ${cart[id]} = ₺${(p.price*cart[id]).toLocaleString('tr-TR')}
+          KDV hariç: ₺${p.price} × ${cart[id]} = ₺${(p.price*cart[id]formatTRInt())}
         </div>
         <div style="font-size:11px;color:var(--text-soft)">
-          KDV (%${Math.round((p.vat??0.20)*100)}): ₺${(p.price*cart[id]*(p.vat??0.20)).toFixed(2)} &nbsp;|&nbsp; 
-          <b>KDV dahil: ₺${(p.price*cart[id]*(1+(p.vat??0.20))).toFixed(2)}</b>
+          KDV (%${Math.round((p.vat??0.20)*100)}): ₺${formatTR(p.price*cart[id]*(p.vat??0.20))} &nbsp;|&nbsp; 
+          <b>KDV dahil: ₺${formatTR(p.price*cart[id]*(1+(p.vat??0.20)))}</b>
         </div>
       </div>
       <div class="qty-ctrl">
@@ -632,13 +675,13 @@ window.renderCart = function() {
         const lineVat = lineNet*(p.vat??0.20);
         return `<div class="summary-row">
           <span>${p.name} ×${cart[id]}</span>
-          <span>₺${lineNet.toLocaleString('tr-TR')} <span style="font-size:11px;color:var(--text-soft)">(+₺${lineVat.toFixed(2)} KDV)</span></span>
+          <span>₺${formatTR(lineNet)} <span style="font-size:11px;color:var(--text-soft)">(+₺${formatTR(lineVat)} KDV)</span></span>
         </div>`; 
       }).join('')}
       <div style="border-top:2px solid var(--border);margin-top:12px;padding-top:12px">
-        <div class="summary-row"><span style="color:var(--text-soft)">Toplam (KDV Hariç)</span><span>₺${total.toLocaleString('tr-TR')}</span></div>
-        <div class="summary-row"><span style="color:var(--text-soft)">Toplam KDV</span><span>₺${Object.keys(cart).reduce((s,id)=>{const p=products.find(x=>x.id==id);return s+(p?p.price*cart[id]*(p.vat??0.20):0);},0).toFixed(2)}</span></div>
-        <div class="summary-row summary-total"><span>Genel Toplam</span><span>₺${(total+Object.keys(cart).reduce((s,id)=>{const p=products.find(x=>x.id==id);return s+(p?p.price*cart[id]*(p.vat??0.20):0);},0)).toFixed(2)}</span></div>
+        <div class="summary-row"><span style="color:var(--text-soft)">Toplam (KDV Hariç)</span><span>₺${formatTR(total)}</span></div>
+        <div class="summary-row"><span style="color:var(--text-soft)">Toplam KDV</span><span>₺${formatTR(Object.keys(cart).reduce((s,id)=>{const p=products.find(x=>x.id==id);return s+(p?p.price*cart[id]*(p.vat??0.20):0);},0))}</span></div>
+        <div class="summary-row summary-total"><span>Genel Toplam</span><span>₺${formatTR(total+Object.keys(cart).reduce((s,id)=>{const p=products.find(x=>x.id==id);return s+(p?p.price*cart[id]*(p.vat??0.20):0);},0))}</span></div>
       </div>
       <div class="order-form" style="margin-top:16px">
         <div class="section-title">Sipariş Bilgileri</div>
@@ -670,7 +713,7 @@ window.submitOrder = async function(total) {
       }),
       total, totalVat, totalWithVat, status: 'bekliyor',
       createdAt: new Date().toISOString(),
-      date: new Date().toLocaleString('tr-TR')
+      date: new formatTRInt(Date())
     });
     // Stok ve istatistikler tamamlandıya çekilince güncellenecek
     cart = {}; updateCartBadge();
@@ -702,7 +745,7 @@ window.renderMyOrders = function() {
   el.innerHTML = `
     <div class="stats-row" style="margin-bottom:20px">
       <div class="stat-card"><div class="stat-num">${mine.length}</div><div class="stat-label">Toplam Sipariş</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺${toplamHarcama.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Harcama</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺formatTRInt(${toplamHarcama)}</div><div class="stat-label">Toplam Harcama</div></div>
     </div>
     ${mine.map(o => `
       <div class="history-card ${o.status}">
@@ -749,7 +792,7 @@ window.renderAdminOrders = function() {
       <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${counts.bekliyor}</div><div class="stat-label">Bekleyen</div></div>
       <div class="stat-card"><div class="stat-num" style="color:#3b82f6">${counts.hazirlaniyor}</div><div class="stat-label">Hazırlanıyor</div></div>
       <div class="stat-card"><div class="stat-num" style="color:#22c55e">${counts.tamamlandi}</div><div class="stat-label">Tamamlandı</div></div>
-      <div class="stat-card"><div class="stat-num">₺${ciro.toLocaleString('tr-TR')}</div><div class="stat-label">Ciro</div></div>
+      <div class="stat-card"><div class="stat-num">₺formatTRInt(${ciro)}</div><div class="stat-label">Ciro</div></div>
     </div>
     <div class="filter-row">
       <span style="font-size:13px;font-weight:600">Filtre:</span>
@@ -894,11 +937,14 @@ window.confirmUnstockedCosts = async function(orderId) {
 }
 
 function formatTR(num) {
-  // Binlik ayraç: nokta, ondalık: virgül
-  return num.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  // Manuel format: binlik ayraç nokta, ondalık virgül
+  const fixed = parseFloat(num).toFixed(2);
+  const parts = fixed.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return parts[0] + ',' + parts[1];
 }
 function formatTRInt(num) {
-  return num.toLocaleString('tr-TR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+  return String(Math.round(num)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
 window.generateProforma = function(orderId) {
@@ -963,7 +1009,34 @@ window.generateProforma = function(orderId) {
 <body>
   <div class="header">
     <div>
-      <div class="company">🍰 Flat Coffee & Cake</div>
+      <div>
+          <?xml version="1.0" encoding="UTF-8"?>
+<svg id="Katman_1" data-name="Katman 1" xmlns="http://www.w3.org/2000/svg" height="50" style="display:block" viewBox="0 0 4210.74 2204.65">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #1a1a18;
+      }
+
+      .cls-1, .cls-2 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2 {
+        fill: #fdfeff;
+        stroke: #1a1a18;
+        stroke-miterlimit: 22.93;
+        stroke-width: .57px;
+      }
+    </style>
+  </defs>
+  <path class="cls-2" d="M324.67,2151.04c-.14-95.47-164.64-259.93-260.1-260.2l-64.15-.18,25.15-59.01c43.16-101.27,71.26-212.88,90.12-321.12,23.4-134.29,33.71-271.95,33.71-408.2s-10.31-273.91-33.71-408.2c-18.86-108.24-46.95-219.85-90.12-321.12L.43,313.99l64.15-.18c95.46-.27,259.96-164.73,260.1-260.2l.08-53.26,51.92,11.86c258.23,59.02,523.65,97.45,787.11,123.73,312.51,31.18,627.51,45.11,941.53,45.11s629.02-13.93,941.53-45.11c263.46-26.29,528.88-64.72,787.11-123.73l51.92-11.86.08,53.26c.13,95.47,164.7,260.02,260.16,260.2l64.21.13-25.17,59.07c-43.16,101.27-71.25,212.88-90.11,321.12-23.4,134.29-33.71,271.94-33.71,408.2s10.31,273.91,33.71,408.2c18.86,108.24,46.95,219.85,90.12,321.12l25.17,59.07c-164.76,8.95-306.41,139.29-324.45,313.58l-51.92-11.86c-258.23-59.02-523.65-97.45-787.11-123.73-312.51-31.18-627.51-45.11-941.53-45.11s-629.02,13.93-941.53,45.11c-263.46,26.29-528.88,64.72-787.11,123.73l-51.92,11.86-.08-53.25Z"/>
+  <path class="cls-1" d="M3843.44,53.67c.17,119.25,183.33,302.43,302.6,302.66-78.07,183.17-127.23,449.49-127.23,745.99s49.16,562.83,127.23,745.99c-119.27.23-302.43,183.41-302.6,302.66-462.47-105.69-1071.12-169.91-1738.11-169.91s-1275.64,64.22-1738.11,169.91c-.17-119.21-183.23-302.32-302.5-302.66,78.07-183.17,127.23-449.49,127.23-745.99s-49.16-562.83-127.23-745.99c119.27-.34,302.33-183.45,302.5-302.66,462.47,105.69,1071.12,169.91,1738.11,169.91s1275.64-64.22,1738.11-169.91h0ZM411.68,2083.01c244.21-52.84,494.04-88.27,742.25-113.03,315.78-31.51,634.07-45.6,951.38-45.6s635.6,14.1,951.38,45.6c248.21,24.76,498.05,60.19,742.26,113.03,37.84-112.27,157.36-233.73,270.05-275.92-32.55-90.4-55.4-185.9-71.71-279.53-24.38-139.92-35.18-283.26-35.18-425.23s10.8-285.31,35.18-425.23c16.31-93.63,39.16-189.13,71.71-279.53-112.69-42.19-232.21-163.65-270.05-275.92-244.21,52.84-494.04,88.27-742.25,113.03-315.78,31.51-634.07,45.6-951.38,45.6s-635.6-14.1-951.38-45.6c-248.21-24.76-498.05-60.19-742.25-113.03-37.83,112.25-157.31,233.67-269.96,275.89,32.55,90.41,55.41,185.92,71.72,279.56,24.38,139.92,35.18,283.26,35.18,425.23s-10.8,285.31-35.18,425.23c-16.32,93.64-39.17,189.15-71.73,279.56,112.65,42.22,232.13,163.64,269.96,275.89h0ZM3764.84,186.81c-231.85,48.02-467,80.78-702.5,104.27-317.91,31.72-637.56,45.88-957.01,45.88s-639.1-14.17-957.01-45.88c-235.5-23.5-470.65-56.26-702.5-104.27-47.71,96.59-138.79,189.39-234.03,240.82,24.97,78.31,43.44,158.95,57.52,239.73,24.98,143.38,36.02,289.47,36.02,434.96s-11.04,291.58-36.02,434.96c-14.08,80.78-32.55,161.43-57.52,239.73,95.24,51.42,186.32,144.22,234.03,240.81,231.85-48.02,467-80.78,702.5-104.27,317.91-31.72,637.56-45.88,957.01-45.88s639.1,14.17,957.01,45.88c235.5,23.5,470.65,56.26,702.51,104.27,47.72-96.61,138.84-189.45,234.11-240.86-24.96-78.29-43.43-158.92-57.5-239.69-24.98-143.38-36.02-289.47-36.02-434.96s11.04-291.58,36.02-434.96c14.07-80.76,32.54-161.39,57.5-239.69-95.28-51.41-186.39-144.25-234.11-240.87h0ZM245.6,1763.69c86.24,51.87,166.77,134.09,215.41,222.09,226.1-45.9,454.97-77.53,684.48-100.43,318.87-31.81,639.41-46.02,959.83-46.02s640.95,14.21,959.83,46.02c229.51,22.9,458.38,54.52,684.48,100.43,48.66-88.02,129.22-170.28,215.5-222.14-21.95-72.6-38.6-146.8-51.61-221.49-25.28-145.08-36.44-292.61-36.44-439.83s11.16-294.74,36.44-439.82c13.01-74.68,29.66-148.89,51.61-221.49-86.28-51.87-166.84-134.12-215.5-222.14-226.1,45.9-454.97,77.53-684.48,100.43-318.87,31.81-639.41,46.02-959.83,46.02s-640.95-14.21-959.83-46.02c-229.51-22.9-458.38-54.52-684.48-100.43-48.65,87.99-129.17,170.22-215.41,222.09,21.96,72.61,38.61,146.84,51.62,221.54,25.28,145.08,36.44,292.61,36.44,439.83s-11.16,294.74-36.44,439.83c-13.02,74.7-29.67,148.93-51.63,221.54Z"/>
+  <path class="cls-1" d="M1011.96,1590.64l34.63,35.92h61.63l34.63-35.92v-30.71h-43.77v22.53h-44.31v-132.39h44.31v23.12h43.77v-30.49l-34.63-36.41h-61.63l-34.63,36.41v147.94h0ZM1175.81,1590.64l34.63,35.92h61.63l34.63-35.92v-147.94l-34.63-36.41h-61.63l-34.63,36.41v147.94h0ZM1262.93,1582.47h-43.02v-132.39h43.02v132.39h0ZM1339.83,1602.79v23.77h86.74v-44.1h-21.51v-43.67h43.93v-44.1h-43.93v-44.63h43.93v23.23h42.59v-67h-151.75v43.77h21.13v132.39h-21.13v20.33h0ZM1524.92,1602.79v23.77h86.74v-44.1h-21.51v-43.67h43.93v-44.1h-43.93v-44.63h43.93v23.23h42.59v-67h-151.75v43.77h21.13v132.39h-21.13v20.33h0ZM1704.53,1582.47v44.1h153.64v-66.68h-44.42v22.59h-43.99v-43.67h43.99v-44.1h-43.99v-44.63h43.99v23.23h44.42v-67h-153.64v43.77h21.13v132.39h-21.13ZM1891.4,1582.47v44.1h153.64v-66.68h-44.42v22.59h-43.99v-43.67h43.99v-44.1h-43.99v-44.63h43.99v23.23h44.42v-67h-153.64v43.77h21.13v132.39h-21.13ZM2214.21,1626.56h62.86l6.45-8.17,7.1,8.17h42.7l-25.54-32,3.98-2.8v-39.69h-40.33l-13.23-16.35,32.43-31.62v-38.66l-36.57-36.41h-38.72l-35.92,36.41v30.49l16.4,18.55-16.4,16.08v61.2l34.79,34.79h0ZM2234.49,1495.94h-10.97v-22.64h23.02v22.64h-12.05ZM2223.52,1566.44v-18.61l29.31,34.63h-29.31v-16.03h0ZM2458.46,1590.64l34.63,35.92h61.63l34.63-35.92v-30.71h-43.77v22.53h-44.31v-132.39h44.31v23.12h43.77v-30.49l-34.63-36.41h-61.63l-34.63,36.41v147.94h0ZM2723.52,1517.24h-25.38l12.1-39.79c5.27,12.37,9.68,25.65,13.28,39.79h0ZM2688.83,1406.24l-54.85,176.22h-22.64v44.1h87.87v-44.1h-20.92l6.45-22.64h52l7.04,22.64h-21.4v44.1h86.79v-44.1h-21.56l-54.85-176.22h-43.93ZM2836.71,1582.47v44.1h84.43v-44.1h-19.04v-18.28l13.28-17.64,28.07,35.92h-16.08v44.1h84.43v-44.1h-17.32l-51.03-66.25,51.03-66.14h17.32v-43.77h-84.43v43.77h18.61l-43.88,59.05v-59.05h19.04v-43.77h-84.43v43.77h21.3v132.39h-21.3ZM3045.15,1582.47v44.1h153.64v-66.68h-44.42v22.59h-43.99v-43.67h43.99v-44.1h-43.99v-44.63h43.99v23.23h44.42v-67h-153.64v43.77h21.13v132.39h-21.13Z"/>
+  <path class="cls-1" d="M849.95,1205.19v81.16h296.18v-150.57h-73.45v-149.1h150.02v-150.57h-150.02v-152.41h150.02v79.32h145.43v-228.79h-518.18v149.47h72.16v452.08h-72.16v69.41h0ZM1444.52,1209.42v76.94h524.43v-227.69h-151.67v77.12h-150.2v-452.08h77.31v-149.47h-299.86v149.47h76.39v452.08h-76.39v73.63h0ZM2446.18,913.05h-86.67l41.31-135.88c17.99,42.23,33.05,87.59,45.35,135.88h0ZM2327.74,534.05l-187.29,601.73h-77.31v150.57h300.04v-150.57h-71.43l22.03-77.3h177.56l24.05,77.3h-73.08v150.57h296.37v-150.57h-73.63l-187.29-601.73h-150.02ZM2907.99,1135.78v150.57h302.24v-150.57h-79.69v-452.08h79.69v79.32h150.57v-228.79h-603.38v228.79h150.57v-79.32h71.98v452.08h-71.98Z"/>
+</svg>
+          <div style="font-size:12px;color:#52ab98;margin-top:4px">Merkez Tedarik</div>
+        </div>
       <div style="font-size:12px;color:#78716C;margin-top:4px">Merkez Tedarik</div>
     </div>
     <div class="doc-title">
@@ -1096,7 +1169,7 @@ window.renderAdminProducts = function() {
               <option value="0" ${(p.vat??0.20)==0?'selected':''}>Yok</option>
             </select>
           </td>
-          <td style="font-weight:600;color:#166534">₺${(p.price*(1+(p.vat??0.20))).toFixed(2)}</td>
+          <td style="font-weight:600;color:#166534">₺${formatTR(p.price*(1+(p.vat??0.20)))}</td>
           <td><input class="edit-input" type="number" value="${p.stock??0}" id="stock-${p.id}" style="width:70px"></td>
           <td>
             <button class="save-btn" onclick="saveProduct('${p.id}')">💾 Kaydet</button>
@@ -1286,7 +1359,7 @@ window.loadProductStockHistory = async function(productId) {
             <td style="font-weight:600">${e.qty} adet</td>
             <td style="color:${remaining<=0?'#ef4444':remaining<e.qty?'#f59e0b':'#22c55e'};font-weight:600">${remaining} adet</td>
             <td>₺${e.cost}/adet</td>
-            <td style="font-weight:600">₺${(e.qty*e.cost).toLocaleString('tr-TR')}</td>
+            <td style="font-weight:600">₺formatTRInt(${(e.qty*e.cost))}</td>
             <td><button class="del-btn" onclick="deleteStockEntry('${e.id}',${e.qty},'${productId}')">🗑️</button></td>
           </tr>`;
         }).join('')}
@@ -1427,7 +1500,7 @@ window.submitAdminOrder = async function() {
     num: orderNum, uid, cafe: user.cafe, contact: user.name, phone: user.phone,
     note, items, total, status: 'bekliyor',
     createdAt: new Date().toISOString(),
-    date: new Date().toLocaleString('tr-TR'),
+    date: new formatTRInt(Date()),
     addedByAdmin: true
   });
   // Kullanıcı istatistikleri güncelle
@@ -1533,9 +1606,9 @@ window.renderAdminReports = async function() {
   
   el.innerHTML = `
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺${totalRevenue.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Ciro</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:#ef4444">₺${totalCost.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Maliyet</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">₺${totalProfit.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Kar</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#22c55e">₺formatTRInt(${totalRevenue)}</div><div class="stat-label">Toplam Ciro</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#ef4444">₺formatTRInt(${totalCost)}</div><div class="stat-label">Toplam Maliyet</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">₺formatTRInt(${totalProfit)}</div><div class="stat-label">Toplam Kar</div></div>
       <div class="stat-card"><div class="stat-num">%${margin}</div><div class="stat-label">Kar Marjı</div></div>
     </div>
     
@@ -1563,16 +1636,16 @@ window.renderAdminReports = async function() {
                 <tr style="border-bottom:1px solid var(--border)">
                   <td style="padding:8px">${i.name}</td>
                   <td style="padding:8px;text-align:right">${i.qty}</td>
-                  <td style="padding:8px;text-align:right">₺${i.revenue.toLocaleString('tr-TR')}</td>
-                  <td style="padding:8px;text-align:right;color:#ef4444">₺${i.cost.toLocaleString('tr-TR',{maximumFractionDigits:2})}</td>
-                  <td style="padding:8px;text-align:right;font-weight:700;color:${i.profit>=0?'#22c55e':'#ef4444'}">₺${i.profit.toLocaleString('tr-TR',{maximumFractionDigits:2})} <span style="font-size:10px;color:var(--text-soft)">(${i.margin}%)</span></td>
+                  <td style="padding:8px;text-align:right">₺formatTRInt(${i.revenue)}</td>
+                  <td style="padding:8px;text-align:right;color:#ef4444">₺formatTRInt(${i.cost)}</td>
+                  <td style="padding:8px;text-align:right;font-weight:700;color:${i.profit>=0?'#22c55e':'#ef4444'}">₺formatTRInt(${i.profit)} <span style="font-size:10px;color:var(--text-soft)">(${i.margin}%)</span></td>
                 </tr>`).join('')}
             </tbody>
           </table>
           
           <div style="display:flex;justify-content:space-between;padding:10px;background:var(--surface);border-radius:8px;font-weight:700">
             <span>Sipariş Karı</span>
-            <span style="color:${o.orderProfit>=0?'#22c55e':'#ef4444'}">₺${o.orderProfit.toLocaleString('tr-TR',{maximumFractionDigits:2})} <span style="font-size:12px;font-weight:400;color:var(--text-soft)">(${o.total>0?((o.orderProfit/o.total)*100).toFixed(1):0}% marj)</span></span>
+            <span style="color:${o.orderProfit>=0?'#22c55e':'#ef4444'}">₺formatTRInt(${o.orderProfit)} <span style="font-size:12px;font-weight:400;color:var(--text-soft)">(${o.total>0?((o.orderProfit/o.total)*100).toFixed(1):0}% marj)</span></span>
           </div>
         </div>`).join('')
     }`;
@@ -1621,7 +1694,7 @@ window.renderAdminUsers = async function() {
           <td><input value="${u.phone||''}" id="ue-phone-${u.uid}" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;width:120px"></td>
           <td style="font-size:12px;color:var(--text-soft)">${u.email||'-'}</td>
           <td>${u.orderCount||0}</td>
-          <td>₺${(u.totalSpent||0).toLocaleString('tr-TR')}</td>
+          <td>₺${(u.totalSpent||formatTRInt(0))}</td>
           <td style="font-size:11px;color:var(--text-soft)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('tr-TR') : '-'}</td>
           <td style="display:flex;gap:4px;flex-wrap:wrap">
             ${u.approved===false ? `<button onclick="approveUser('${u.uid}')" style="background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">✅ Onayla</button>` : ''}
@@ -1654,7 +1727,7 @@ window.renderCustomerHistory = function() {
   el.innerHTML = `
     <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
       <div style="background:var(--surface);border-radius:8px;padding:10px 16px;font-size:13px"><span style="color:var(--text-soft)">Toplam Sipariş:</span> <b>${orders.length}</b></div>
-      <div style="background:var(--surface);border-radius:8px;padding:10px 16px;font-size:13px"><span style="color:var(--text-soft)">Tamamlanan Ciro:</span> <b style="color:#22c55e">₺${totalSpent.toLocaleString('tr-TR')}</b></div>
+      <div style="background:var(--surface);border-radius:8px;padding:10px 16px;font-size:13px"><span style="color:var(--text-soft)">Tamamlanan Ciro:</span> <b style="color:#22c55e">₺formatTRInt(${totalSpent)}</b></div>
     </div>
     ${orders.map(o => `
       <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${o.status==='tamamlandi'?'#22c55e':o.status==='bekliyor'?'#f59e0b':o.status==='hazirlaniyor'?'#3b82f6':'#ef4444'}">
@@ -1666,7 +1739,7 @@ window.renderCustomerHistory = function() {
           ${o.items.map(i=>`<span class="code-tag">#${i.code}</span> ${i.name} ×${i.qty} = <b>₺${i.price*i.qty}</b>`).join(' &nbsp;|&nbsp; ')}
         </div>
         ${o.note?`<div style="font-size:12px;color:var(--text-soft);margin-bottom:6px">📝 ${o.note}</div>`:''}
-        <div style="font-weight:700">Toplam: ₺${o.total.toLocaleString('tr-TR')}</div>
+        <div style="font-weight:700">Toplam: ₺formatTRInt(${o.total)}</div>
       </div>`).join('')}`;
 }
 
