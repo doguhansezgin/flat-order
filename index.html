@@ -635,7 +635,11 @@ window.renderCart = function() {
           <span>₺${lineNet.toLocaleString('tr-TR')} <span style="font-size:11px;color:var(--text-soft)">(+₺${lineVat.toFixed(2)} KDV)</span></span>
         </div>`; 
       }).join('')}
-      <div class="summary-row summary-total"><span>Toplam</span><span>₺${total}</span></div>
+      <div style="border-top:2px solid var(--border);margin-top:12px;padding-top:12px">
+        <div class="summary-row"><span style="color:var(--text-soft)">Toplam (KDV Hariç)</span><span>₺${total.toLocaleString('tr-TR')}</span></div>
+        <div class="summary-row"><span style="color:var(--text-soft)">Toplam KDV</span><span>₺${Object.keys(cart).reduce((s,id)=>{const p=products.find(x=>x.id==id);return s+(p?p.price*cart[id]*(p.vat??0.20):0);},0).toFixed(2)}</span></div>
+        <div class="summary-row summary-total"><span>Genel Toplam</span><span>₺${(total+Object.keys(cart).reduce((s,id)=>{const p=products.find(x=>x.id==id);return s+(p?p.price*cart[id]*(p.vat??0.20):0);},0)).toFixed(2)}</span></div>
+      </div>
       <div class="order-form" style="margin-top:16px">
         <div class="section-title">Sipariş Bilgileri</div>
         <input type="text" id="cafe-name" placeholder="Kafe / Şube adı *" value="${cafe}">
