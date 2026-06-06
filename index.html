@@ -1195,7 +1195,8 @@ window.addProduct = async function() {
   if (!code||!name||!price||!cat) { alert('Zorunlu alanları doldurun.'); return; }
   if (products.find(p=>p.code===code)) { alert('Bu kod zaten var!'); return; }
   const unstocked = document.getElementById('np-unstocked').checked;
-  const vat = parseFloat(document.getElementById('np-vat').value) || 0.20;
+  const vatEl = document.getElementById('np-vat');
+  const vat = vatEl ? Number(vatEl.value) : 0.20;
   await addDoc(collection(db, 'products'), { code, name, price, cat, emoji, stock: unstocked ? 0 : stock, unstocked, vat });
   showToast('Ürün eklendi ✓');
   ['np-code','np-name','np-price','np-cat','np-emoji','np-stock'].forEach(id => document.getElementById(id).value='');
@@ -1204,8 +1205,16 @@ window.addProduct = async function() {
 
 window.saveProduct = async function(id) {
   const price = parseFloat(document.getElementById('price-'+id).value);
-  const stock = parseInt(document.getElementById('stock-'+id).value)||0;
-  await updateDoc(doc(db,'products',id), { price, stock });
+  const stock = parseInt(document.getElementById('stock-'+id).value) || 0;
+  const vatEl = document.getElementById('vat-'+id);
+  const vat = vatEl ? Number(vatEl.value) : 0.20;
+
+  if (Number.isNaN(price) || price <= 0) {
+    alert('Geçerli bir fiyat girin.');
+    return;
+  }
+
+  await updateDoc(doc(db,'products',id), { price, stock, vat });
   showToast('Kaydedildi ✓');
 }
 
