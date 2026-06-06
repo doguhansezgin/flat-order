@@ -601,7 +601,7 @@ window.renderCart = function() {
       <span style="font-size:28px">${p.emoji||'📦'}</span>
       <div class="cart-item-info">
         <div class="cart-item-name">${p.name} <span class="code-tag">#${p.code}</span></div>
-        <div class="cart-item-price">₺${p.price} × ${cart[id]}</div>
+        <div class="cart-item-price">₺${p.price} × ${cart[id]} (+%${Math.round((p.vat??0.20)*100)} KDV)</div>
       </div>
       <div class="qty-ctrl">
         <button onclick="decCart('${p.id}');renderCart();">−</button>
@@ -645,7 +645,11 @@ window.submitOrder = async function(total) {
     await addDoc(collection(db, 'orders'), {
       num: orderNum, uid: currentUser.uid, cafe, contact, phone,
       note: document.getElementById('order-note').value,
-      items, total, status: 'bekliyor',
+      items: items.map(i => {
+        const p = products.find(x=>x.id==i.id);
+        return {...i, vat: p?.vat??0.20, vatAmount: i.price*i.qty*(p?.vat??0.20)};
+      }),
+      total, totalVat, totalWithVat, status: 'bekliyor',
       createdAt: new Date().toISOString(),
       date: new Date().toLocaleString('tr-TR')
     });
@@ -749,13 +753,14 @@ window.renderAdminOrders = function() {
           <div style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.7">${o.items.map(i=>`<span class="code-tag">#${i.code}</span> ${i.name} ×${i.qty} = ₺${i.price*i.qty}`).join(' | ')}</div>
           ${o.note?`<div style="font-size:12px;color:#888;margin-bottom:8px">📝 ${o.note}</div>`:''}
           <div style="font-weight:700;margin-bottom:10px">Toplam: ₺${o.total}</div>
-          <div style="display:flex;align-items:center;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
               <option value="bekliyor" ${o.status==='bekliyor'?'selected':''}>⏳ Bekliyor</option>
               <option value="hazirlaniyor" ${o.status==='hazirlaniyor'?'selected':''}>🔄 Hazırlanıyor</option>
               <option value="tamamlandi" ${o.status==='tamamlandi'?'selected':''}>✅ Tamamlandı</option>
               <option value="iptal" ${o.status==='iptal'?'selected':''}>❌ İptal</option>
             </select>
+            <button onclick="generateProforma('${o.id}')" style="background:#dbeafe;color:#1e40af;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">📄 Proforma</button>
             <button onclick="deleteOrder('${o.id}', '${o.num}')" style="background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">🗑️ Sil</button>
           </div>
         </div>`).join('')}`;
@@ -869,6 +874,136 @@ window.confirmUnstockedCosts = async function(orderId) {
   await completeOrder(order, costs);
 }
 
+function formatTR(num) {
+  // Binlik ayraç: nokta, ondalık: virgül
+  return num.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+function formatTRInt(num) {
+  return num.toLocaleString('tr-TR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+}
+
+window.generateProforma = function(orderId) {
+  const o = allOrders.find(x => x.id === orderId);
+  if (!o) return;
+
+  const vatRows = o.items.map(i => {
+    const vatRate = i.vat ?? 0.20;
+    const lineTotal = i.price * i.qty;
+    const lineVat = lineTotal * vatRate;
+    const lineWithVat = lineTotal + lineVat;
+    return `
+      <tr>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee">${i.name}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:center">#${i.code}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:right">${i.qty}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:right">₺${formatTR(i.price)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:center">%${Math.round(vatRate*100)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:right">₺${formatTR(lineVat)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:600">₺${formatTR(lineWithVat)}</td>
+      </tr>`;
+  }).join('');
+
+  const totalVat = o.totalVat || o.items.reduce((s,i)=>s+(i.price*i.qty*(i.vat??0.20)),0);
+  const totalWithVat = o.totalWithVat || (o.total + totalVat);
+
+  const html = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Proforma - ${o.num}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1C1917; background: white; padding: 40px; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #1C1917; }
+  .company { font-size: 22px; font-weight: 800; letter-spacing: 1px; }
+  .doc-title { text-align: right; }
+  .doc-title h1 { font-size: 28px; font-weight: 800; color: #1C1917; }
+  .doc-title .num { font-size: 14px; color: #78716C; margin-top: 4px; }
+  .doc-title .date { font-size: 13px; color: #78716C; }
+  .parties { display: flex; justify-content: space-between; margin-bottom: 30px; gap: 20px; }
+  .party { flex: 1; background: #FBF9F6; border-radius: 10px; padding: 16px 20px; }
+  .party-label { font-size: 11px; font-weight: 700; color: #78716C; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .party-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .party-detail { font-size: 13px; color: #78716C; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  thead tr { background: #1C1917; color: white; }
+  thead th { padding: 10px 10px; text-align: left; font-size: 12px; font-weight: 600; }
+  thead th:not(:first-child) { text-align: right; }
+  thead th:nth-child(2) { text-align: center; }
+  thead th:nth-child(3) { text-align: center; }
+  thead th:nth-child(5) { text-align: center; }
+  tbody tr:hover { background: #fafaf8; }
+  .totals { margin-left: auto; width: 320px; }
+  .total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px solid #eee; }
+  .total-row.grand { font-size: 18px; font-weight: 800; border-bottom: none; padding-top: 10px; border-top: 2px solid #1C1917; margin-top: 4px; }
+  .note { margin-top: 30px; padding: 14px 18px; background: #FBF9F6; border-radius: 8px; font-size: 13px; color: #78716C; }
+  .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 11px; color: #aaa; text-align: center; }
+  @media print { body { padding: 20px; } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="company">🍰 Flat Coffee & Cake</div>
+      <div style="font-size:12px;color:#78716C;margin-top:4px">Merkez Tedarik</div>
+    </div>
+    <div class="doc-title">
+      <h1>PROFORMA FATURA</h1>
+      <div class="num">No: ${o.num}</div>
+      <div class="date">Tarih: ${o.date}</div>
+    </div>
+  </div>
+
+  <div class="parties">
+    <div class="party">
+      <div class="party-label">Satıcı</div>
+      <div class="party-name">Flat Coffee & Cake</div>
+      <div class="party-detail">Merkez Tedarik Birimi</div>
+    </div>
+    <div class="party">
+      <div class="party-label">Alıcı</div>
+      <div class="party-name">${o.cafe}</div>
+      <div class="party-detail">${o.contact} — ${o.phone}</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="border-radius:6px 0 0 0">Ürün Adı</th>
+        <th>Kod</th>
+        <th>Adet</th>
+        <th style="text-align:right">Birim Fiyat</th>
+        <th>KDV %</th>
+        <th style="text-align:right">KDV Tutarı</th>
+        <th style="text-align:right;border-radius:0 6px 0 0">KDV Dahil</th>
+      </tr>
+    </thead>
+    <tbody>${vatRows}</tbody>
+  </table>
+
+  <div class="totals">
+    <div class="total-row"><span>KDV\u2019siz Toplam</span><span>\u20ba${formatTR(o.total)}</span></div>
+    <div class="total-row"><span>Toplam KDV</span><span>\u20ba${formatTR(totalVat)}</span></div>
+    <div class="total-row grand"><span>GENEL TOPLAM</span><span>\u20ba${formatTR(totalWithVat)}</span></div>
+  </div>
+
+  ${o.note ? `<div class="note">📝 <b>Not:</b> ${o.note}</div>` : ''}
+
+  <div class="footer">Bu belge proforma fatura niteliğinde olup resmi fatura değildir. • Flat Coffee & Cake • ${new Date().toLocaleDateString('tr-TR')}</div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  if (win) {
+    win.onload = () => {
+      setTimeout(() => { win.print(); }, 500);
+    };
+  }
+}
+
 window.deleteOrder = async function(id, num) {
   if (!confirm(num + ' nolu siparişi silmek istediğinize emin misiniz?')) return;
   // Tamamlanmış siparişse stok geri koy
@@ -910,6 +1045,15 @@ window.renderAdminProducts = function() {
         <div class="form-group"><label>Kategori *</label><input id="np-cat" placeholder="Sıcak İçecek"></div>
         <div class="form-group"><label>Emoji</label><input id="np-emoji" placeholder="☕"></div>
         <div class="form-group"><label>Başlangıç Stok</label><input id="np-stock" type="number" placeholder="100"></div>
+        <div class="form-group">
+          <label>KDV Oranı *</label>
+          <select id="np-vat" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit">
+            <option value="0.20">%20</option>
+            <option value="0.10">%10</option>
+            <option value="0.01">%1</option>
+            <option value="0">KDV Yok</option>
+          </select>
+        </div>
         <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:20px">
           <input type="checkbox" id="np-unstocked" style="width:16px;height:16px;cursor:pointer">
           <label for="np-unstocked" style="font-size:13px;cursor:pointer;color:var(--text)">📦 Stoksuz Satış <span style="font-size:11px;color:var(--text-soft)">(sipariş gelince alış fiyatı sorulsun)</span></label>
@@ -918,7 +1062,7 @@ window.renderAdminProducts = function() {
       <button class="add-prod-btn" onclick="addProduct()">➕ Ürün Ekle</button>
     </div>
     <table class="prod-table">
-      <thead><tr><th>Kod</th><th>Ürün</th><th>Kategori</th><th>Fiyat</th><th>Stok</th><th>İşlem</th></tr></thead>
+      <thead><tr><th>Kod</th><th>Ürün</th><th>Kategori</th><th>KDV'siz Fiyat</th><th>KDV</th><th>KDV'li Fiyat</th><th>Stok</th><th>İşlem</th></tr></thead>
       <tbody>
         ${products.map(p => `<tr>
           <td><span class="code-tag">#${p.code}</span></td>
@@ -945,7 +1089,8 @@ window.addProduct = async function() {
   if (!code||!name||!price||!cat) { alert('Zorunlu alanları doldurun.'); return; }
   if (products.find(p=>p.code===code)) { alert('Bu kod zaten var!'); return; }
   const unstocked = document.getElementById('np-unstocked').checked;
-  await addDoc(collection(db, 'products'), { code, name, price, cat, emoji, stock: unstocked ? 0 : stock, unstocked: unstocked });
+  const vat = parseFloat(document.getElementById('np-vat').value) || 0.20;
+  await addDoc(collection(db, 'products'), { code, name, price, cat, emoji, stock: unstocked ? 0 : stock, unstocked, vat });
   showToast('Ürün eklendi ✓');
   ['np-code','np-name','np-price','np-cat','np-emoji','np-stock'].forEach(id => document.getElementById(id).value='');
   document.getElementById('np-unstocked').checked = false;
