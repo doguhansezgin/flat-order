@@ -601,7 +601,13 @@ window.renderCart = function() {
       <span style="font-size:28px">${p.emoji||'📦'}</span>
       <div class="cart-item-info">
         <div class="cart-item-name">${p.name} <span class="code-tag">#${p.code}</span></div>
-        <div class="cart-item-price">₺${p.price} × ${cart[id]} (+%${Math.round((p.vat??0.20)*100)} KDV)</div>
+        <div class="cart-item-price">
+          KDV hariç: ₺${p.price} × ${cart[id]} = ₺${(p.price*cart[id]).toLocaleString('tr-TR')}
+        </div>
+        <div style="font-size:11px;color:var(--text-soft)">
+          KDV (%${Math.round((p.vat??0.20)*100)}): ₺${(p.price*cart[id]*(p.vat??0.20)).toFixed(2)} &nbsp;|&nbsp; 
+          <b>KDV dahil: ₺${(p.price*cart[id]*(1+(p.vat??0.20))).toFixed(2)}</b>
+        </div>
       </div>
       <div class="qty-ctrl">
         <button onclick="decCart('${p.id}');renderCart();">−</button>
@@ -619,7 +625,16 @@ window.renderCart = function() {
   el.innerHTML = `${items}
     <div class="cart-summary">
       <h3>Sipariş Özeti</h3>
-      ${keys.map(id => { const p = products.find(x=>x.id==id); return p ? `<div class="summary-row"><span>${p.name} ×${cart[id]}</span><span>₺${p.price*cart[id]}</span></div>` : ''; }).join('')}
+      ${keys.map(id => { 
+        const p = products.find(x=>x.id==id); 
+        if (!p) return '';
+        const lineNet = p.price*cart[id];
+        const lineVat = lineNet*(p.vat??0.20);
+        return `<div class="summary-row">
+          <span>${p.name} ×${cart[id]}</span>
+          <span>₺${lineNet.toLocaleString('tr-TR')} <span style="font-size:11px;color:var(--text-soft)">(+₺${lineVat.toFixed(2)} KDV)</span></span>
+        </div>`; 
+      }).join('')}
       <div class="summary-row summary-total"><span>Toplam</span><span>₺${total}</span></div>
       <div class="order-form" style="margin-top:16px">
         <div class="section-title">Sipariş Bilgileri</div>
@@ -1062,7 +1077,7 @@ window.renderAdminProducts = function() {
       <button class="add-prod-btn" onclick="addProduct()">➕ Ürün Ekle</button>
     </div>
     <table class="prod-table">
-      <thead><tr><th>Kod</th><th>Ürün</th><th>Kategori</th><th>KDV'siz Fiyat</th><th>KDV</th><th>KDV'li Fiyat</th><th>Stok</th><th>İşlem</th></tr></thead>
+      <thead><tr><th>Kod</th><th>Ürün</th><th>Kategori</th><th>KDV'siz Fiyat</th><th>KDV Oranı</th><th>KDV'li Fiyat</th><th>Stok</th><th>İşlem</th></tr></thead>
       <tbody>
         ${products.map(p => `<tr>
           <td><span class="code-tag">#${p.code}</span></td>
