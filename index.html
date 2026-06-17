@@ -828,6 +828,7 @@ window.renderAdminOrders = function() {
               <option value="iptal" ${o.status==='iptal'?'selected':''}>❌ İptal</option>
             </select>
             <button onclick="generateProforma('${o.id}')" style="background:#dbeafe;color:#1e40af;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">📄 Proforma</button>
+            <button onclick="generateExcel('${o.id}')" style="background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">📊 Excel</button>
             <button onclick="deleteOrder('${o.id}', '${o.num}')" style="background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">🗑️ Sil</button>
           </div>
         </div>`).join('')}`;
@@ -950,6 +951,86 @@ function formatTR(num) {
 }
 function formatTRInt(num) {
   return String(Math.round(num)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+window.generateExcel = async function(orderId) {
+  const o = allOrders.find(x => x.id === orderId);
+  if (!o) return;
+
+  // SheetJS yükle
+  if (!window.XLSX) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  const totalVat = o.totalVat || o.items.reduce((s,i) => s + (i.price*i.qty*(i.vat??0.20)), 0);
+  const totalWithVat = o.totalWithVat || (o.total + totalVat);
+
+  // Başlık bilgileri
+  const infoRows = [
+    ['PROFORMA FATURA'],
+    [],
+    ['Sipariş No:', o.num],
+    ['Tarih:', o.date],
+    ['Satıcı:', 'Flat Coffee & Cake'],
+    ['Alıcı Kafe/Şube:', o.cafe],
+    ['Yetkili:', o.contact],
+    ['Telefon:', o.phone],
+    ...(o.note ? [['Not:', o.note]] : []),
+    ['Durum:', o.status === 'tamamlandi' ? 'Tamamlandı' : o.status === 'bekliyor' ? 'Bekliyor' : o.status === 'hazirlaniyor' ? 'Hazırlanıyor' : 'İptal'],
+    [],
+  ];
+
+  // Ürün tablosu başlığı
+  const tableHeader = [['Ürün Adı', 'Ürün Kodu', 'Adet', 'Birim Fiyat (₺)', 'KDV Oranı (%)', 'KDV Tutarı (₺)', 'KDV Dahil (₺)']];
+
+  // Ürün satırları
+  const itemRows = o.items.map(i => {
+    const vatRate = i.vat ?? 0.20;
+    const lineTotal = i.price * i.qty;
+    const lineVat = lineTotal * vatRate;
+    const lineWithVat = lineTotal + lineVat;
+    return [
+      i.name,
+      '#' + i.code,
+      i.qty,
+      i.price,
+      Math.round(vatRate * 100),
+      parseFloat(lineVat.toFixed(2)),
+      parseFloat(lineWithVat.toFixed(2))
+    ];
+  });
+
+  // Toplam satırları
+  const totalRows = [
+    [],
+    ['', '', '', '', 'KDV\'siz Toplam:', '', parseFloat(o.total.toFixed(2))],
+    ['', '', '', '', 'Toplam KDV:', '', parseFloat(totalVat.toFixed(2))],
+    ['', '', '', '', 'GENEL TOPLAM:', '', parseFloat(totalWithVat.toFixed(2))],
+    [],
+    ['Bu belge proforma fatura niteliğindedir.'],
+  ];
+
+  const allRows = [...infoRows, ...tableHeader, ...itemRows, ...totalRows];
+
+  const ws = XLSX.utils.aoa_to_sheet(allRows);
+
+  // Kolon genişlikleri
+  ws['!cols'] = [
+    { wch: 35 }, { wch: 12 }, { wch: 8 }, { wch: 18 },
+    { wch: 16 }, { wch: 18 }, { wch: 18 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Proforma');
+
+  XLSX.writeFile(wb, `Proforma_${o.num}_${o.cafe.replace(/\s+/g,'_')}.xlsx`);
+  showToast('Excel indirildi ✓');
 }
 
 window.generateProforma = function(orderId) {
