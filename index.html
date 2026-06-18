@@ -836,7 +836,7 @@ window.switchAdminTab = function(tab, btn) {
   adminTab = tab;
   document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['orders','neworder','products','stock','users','reports'].forEach(t => {
+  ['orders','neworder','products','stock','users','reports','settings'].forEach(t => {
     document.getElementById('admin-' + t).style.display = t === tab ? 'block' : 'none';
   });
   if (tab === 'orders') renderAdminOrders();
@@ -1270,7 +1270,13 @@ window.renderAdminProducts = function() {
         })().map(p => `<tr>
           <td><span class="code-tag">#${p.code}</span></td>
           <td>${p.emoji||''} ${p.name}</td>
-          <td>${p.cat}</td>
+          <td>
+            <select id="cat-${p.id}" style="border:1.5px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;background:#fafbfb;max-width:120px">
+              ${siteCategories.length > 0 
+                ? siteCategories.map(c => `<option value="${c.name}" ${p.cat===c.name?'selected':''}>${c.name}</option>`).join('') 
+                : `<option value="${p.cat}">${p.cat}</option>`}
+            </select>
+          </td>
           <td><input class="edit-input" type="number" value="${p.price}" id="price-${p.id}" style="width:90px"> ₺</td>
           <td>
             <select id="vat-${p.id}" style="border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px">
@@ -1322,13 +1328,15 @@ window.saveProduct = async function(id) {
   const stock = parseInt(document.getElementById('stock-'+id).value) || 0;
   const vatEl = document.getElementById('vat-'+id);
   const vat = vatEl ? Number(vatEl.value) : 0.20;
+  const catEl = document.getElementById('cat-'+id);
+  const cat = catEl ? catEl.value : null;
 
   if (Number.isNaN(price) || price <= 0) {
     alert('Geçerli bir fiyat girin.');
     return;
   }
 
-  await updateDoc(doc(db,'products',id), { price, stock, vat });
+  await updateDoc(doc(db,'products',id), { price, stock, vat, ...(cat ? {cat} : {}) });
   showToast('Kaydedildi');
 }
 
