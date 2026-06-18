@@ -1440,7 +1440,6 @@ window.renderAdminStock = function() {
         </div>`;
       }).join('')}
     </div>`;
-  renderStockHistory();
 }
 
 window.updateStock = async function(id) {
@@ -1539,6 +1538,10 @@ function renderAdminNewOrderUI() {
             <div style="color:var(--text-soft);margin-top:2px">${selectedUser.phone} | ${selectedUser.email}</div>
           </div>` : ''}
           <div style="margin-top:12px">
+            <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Sipariş Tarihi</label>
+            <input type="date" id="ao-date" value="${new Date().toISOString().slice(0,10)}" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fafbfb;color:var(--text)">
+          </div>
+          <div style="margin-top:10px">
             <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Not (opsiyonel)</label>
             <textarea id="ao-note" placeholder="Sipariş notu..." style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;height:70px;resize:vertical"></textarea>
           </div>
@@ -1661,14 +1664,16 @@ window.submitAdminOrder = async function() {
   const totalWithVat = total + totalVat;
   const orderNum = 'SP' + Date.now().toString().slice(-6);
   const note = document.getElementById('ao-note')?.value || '';
+  const customDateVal = document.getElementById('ao-date')?.value;
+  const orderDate = customDateVal ? new Date(customDateVal) : new Date();
   await addDoc(collection(db, 'orders'), {
     num: orderNum, uid, cafe: user.cafe, contact: user.name, phone: user.phone,
     note, items: items.map(i => {
       const p = products.find(x => x.id == i.id);
       return {...i, vat: p?.vat ?? 0.20, vatAmount: i.price * i.qty * (p?.vat ?? 0.20)};
     }), total, totalVat, totalWithVat, status: 'bekliyor',
-    createdAt: new Date().toISOString(),
-    date: new Date().toLocaleString('tr-TR'),
+    createdAt: orderDate.toISOString(),
+    date: orderDate.toLocaleDateString('tr-TR'),
     addedByAdmin: true
   });
   // Kullanıcı istatistikleri güncelle
