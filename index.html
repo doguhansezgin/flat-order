@@ -341,6 +341,7 @@
       <button class="admin-tab" onclick="switchAdminTab('stock', this)">Stok</button>
       <button class="admin-tab" onclick="switchAdminTab('users', this)">Müşteriler</button>
       <button class="admin-tab" onclick="switchAdminTab('reports', this)">Raporlar</button>
+      <button class="admin-tab" onclick="switchAdminTab('settings', this)">Ayarlar</button>
     </div>
     <div id="admin-orders"></div>
     <div id="admin-neworder" style="display:none"></div>
@@ -348,6 +349,7 @@
     <div id="admin-stock" style="display:none"></div>
     <div id="admin-users" style="display:none"></div>
     <div id="admin-reports" style="display:none"></div>
+    <div id="admin-settings" style="display:none"></div>
   </div>
 </div>
 
@@ -407,6 +409,9 @@ let currentUser = null;
 let userProfile = null;
 let adminLoggedIn = false;
 let products = [];
+let siteSettings = {};
+let siteCategories = [];
+let deliveryRoutes = [];
 let allOrders = [];
 let myOrders = [];
 let cart = {};
@@ -578,6 +583,17 @@ let unsubOrders = null;
 function startListeners() {
   if (unsubProducts) unsubProducts();
   if (unsubOrders) unsubOrders();
+
+  // Settings listener
+  onSnapshot(doc(db, 'settings', 'main'), snap => {
+    siteSettings = snap.exists() ? snap.data() : {};
+  });
+  onSnapshot(collection(db, 'categories'), snap => {
+    siteCategories = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.order||0)-(b.order||0));
+  });
+  onSnapshot(collection(db, 'routes'), snap => {
+    deliveryRoutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  });
 
   unsubProducts = onSnapshot(collection(db, 'products'), snap => {
     products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -829,6 +845,7 @@ window.switchAdminTab = function(tab, btn) {
   if (tab === 'stock') renderAdminStock();
   if (tab === 'users') renderAdminUsers();
   if (tab === 'reports') renderAdminReports();
+  if (tab === 'settings') renderAdminSettings();
 }
 
 window.renderAdminOrders = function() {
@@ -1189,7 +1206,13 @@ window.renderAdminProducts = function() {
         </div>
         <div class="form-group"><label>Ürün Adı *</label><input id="np-name" placeholder="Latte"></div>
         <div class="form-group"><label>Fiyat (₺) *</label><input id="np-price" type="number" placeholder="65"></div>
-        <div class="form-group"><label>Kategori *</label><input id="np-cat" placeholder="Sıcak İçecek"></div>
+        <div class="form-group">
+          <label>Kategori *</label>
+          <select id="np-cat" style="border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fafbfb;color:var(--text)">
+            <option value="">-- Kategori seçin --</option>
+            ${siteCategories.map(c => `<option value="${c.name}">${c.name}</option>`).join('')}
+          </select>
+        </div>
         <div class="form-group"><label>Emoji</label><input id="np-emoji" placeholder="☕"></div>
         <div class="form-group"><label>Başlangıç Stok</label><input id="np-stock" type="number" placeholder="100"></div>
         <div class="form-group">
@@ -1934,6 +1957,196 @@ async function seedIfEmpty() {
   }
 }
 seedIfEmpty();
+
+// =====================
+// AYARLAR
+// =====================
+window.renderAdminSettings = function() {
+  const el = document.getElementById('admin-settings');
+  if (!el) return;
+  const days = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <div class="prod-admin-form">
+          <div class="section-title">Kategori Yönetimi</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input id="new-cat-name" placeholder="Kategori adı" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fafbfb">
+            <button onclick="addCategory()" style="padding:9px 16px;background:var(--nav-bg);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Ekle</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${siteCategories.map(c => `
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--border)">
+                <span style="font-size:14px;font-weight:500">${c.name}</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <label style="font-size:12px;color:var(--text-soft)">Teslim (gün):</label>
+                  <input type="number" value="${c.deliveryDays||''}" onchange="updateCategoryDelivery('${c.id}', this.value)" placeholder="—" style="width:50px;border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;text-align:center;font-family:inherit">
+                  <button onclick="deleteCategory('${c.id}')" style="padding:4px 8px;background:#fef2f2;color:#991b1b;border:1.5px solid #fecaca;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">Sil</button>
+                </div>
+              </div>`).join('')}
+            ${siteCategories.length === 0 ? '<div style="color:var(--text-soft);font-size:13px;padding:10px">Henüz kategori eklenmedi</div>' : ''}
+          </div>
+        </div>
+
+        <div class="prod-admin-form">
+          <div class="section-title">Bildirim Ayarları</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div>
+              <label style="font-size:12px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Bildirim Mail Adresi</label>
+              <div style="display:flex;gap:8px">
+                <input id="notif-email" value="${siteSettings.notifEmail||''}" placeholder="ornek@mail.com" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fafbfb">
+                <button onclick="saveNotifEmail()" style="padding:9px 16px;background:var(--nav-bg);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Kaydet</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--border)">
+              <div>
+                <div style="font-size:14px;font-weight:500">Mail Bildirimi</div>
+                <div style="font-size:12px;color:var(--text-soft)">Yeni sipariş gelince mail at</div>
+              </div>
+              <div onclick="toggleSetting('mailNotif')" style="width:44px;height:24px;border-radius:12px;background:${siteSettings.mailNotif?'var(--accent)':'#ccc'};cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0">
+                <span style="position:absolute;top:2px;${siteSettings.mailNotif?'right:2px':'left:2px'};width:20px;height:20px;background:white;border-radius:50%;transition:all 0.2s;display:block;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-admin-form">
+          <div class="section-title">Genel Ayarlar</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div>
+              <label style="font-size:12px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Minimum Sipariş Tutarı (₺)</label>
+              <div style="display:flex;gap:8px">
+                <input id="min-order" type="number" value="${siteSettings.minOrder||''}" placeholder="0" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fafbfb">
+                <button onclick="saveMinOrder()" style="padding:9px 16px;background:var(--nav-bg);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Kaydet</button>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Varsayılan KDV Oranı</label>
+              <select onchange="saveSetting('defaultVat', this.value)" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fafbfb">
+                <option value="0.20" ${(siteSettings.defaultVat||'0.20')==='0.20'?'selected':''}>%20</option>
+                <option value="0.10" ${siteSettings.defaultVat==='0.10'?'selected':''}>%10</option>
+                <option value="0.01" ${siteSettings.defaultVat==='0.01'?'selected':''}>%1</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <div class="prod-admin-form">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div class="section-title" style="margin-bottom:0">Teslimat Rotaları</div>
+            <div onclick="toggleSetting('routesActive')" style="display:flex;align-items:center;gap:8px;padding:7px 14px;background:${siteSettings.routesActive?'var(--accent)':'#ccc'};color:white;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s;user-select:none">
+              ${siteSettings.routesActive ? 'Aktif' : 'Pasif'}
+            </div>
+          </div>
+          ${siteSettings.routesActive 
+            ? '<div style="font-size:12px;color:var(--accent);margin-bottom:12px;padding:8px 12px;background:#f0fdf9;border-radius:6px;border:1px solid #a7f3d0">Müşteri sipariş ekranında teslimat günü seçimi görünür</div>' 
+            : '<div style="font-size:12px;color:var(--text-soft);margin-bottom:12px;padding:8px 12px;background:var(--bg);border-radius:6px">Pasif — müşteri teslimat günü seçimi görmez</div>'}
+
+          <div style="background:var(--bg);border-radius:8px;padding:14px;margin-bottom:12px;border:1.5px solid var(--border)">
+            <div style="font-size:13px;font-weight:600;margin-bottom:10px">Yeni Rota Ekle</div>
+            <input id="new-route-name" placeholder="Rota adı (örn: Çarşamba Rotası)" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:white;margin-bottom:8px;box-sizing:border-box">
+            <input id="new-route-region" placeholder="Bölge (örn: Çarşamba, Terme)" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:white;margin-bottom:8px;box-sizing:border-box">
+            <div style="font-size:12px;font-weight:600;color:var(--text-soft);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Teslimat Günleri</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+              ${days.map(d => `<label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;background:white"><input type="checkbox" id="nd-${d}" style="cursor:pointer"> ${d}</label>`).join('')}
+            </div>
+            <button onclick="addRoute()" style="width:100%;padding:9px;background:var(--nav-bg);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Rota Ekle</button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            ${deliveryRoutes.map(r => `
+              <div style="padding:12px 14px;background:var(--bg);border-radius:8px;border:1.5px solid var(--border)">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+                  <div>
+                    <div style="font-size:14px;font-weight:600">${r.name}</div>
+                    ${r.region ? `<div style="font-size:12px;color:var(--text-soft)">${r.region}</div>` : ''}
+                  </div>
+                  <button onclick="deleteRoute('${r.id}')" style="padding:4px 8px;background:#fef2f2;color:#991b1b;border:1.5px solid #fecaca;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">Sil</button>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px">
+                  ${(r.days||[]).map(d => `<span style="padding:3px 9px;background:var(--border-dark);border-radius:4px;font-size:11px;font-weight:500">${d}</span>`).join('')}
+                </div>
+              </div>`).join('')}
+            ${deliveryRoutes.length === 0 ? '<div style="color:var(--text-soft);font-size:13px;padding:10px">Henüz rota eklenmedi</div>' : ''}
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+}
+
+window.addCategory = async function() {
+  const name = document.getElementById('new-cat-name').value.trim();
+  if (!name) return;
+  if (siteCategories.find(c => c.name === name)) { showToast('Bu kategori zaten var'); return; }
+  await addDoc(collection(db, 'categories'), { name, order: siteCategories.length, deliveryDays: null });
+  document.getElementById('new-cat-name').value = '';
+  showToast('Kategori eklendi');
+}
+
+window.deleteCategory = async function(id) {
+  if (!confirm('Bu kategori silinsin mi?')) return;
+  await deleteDoc(doc(db, 'categories', id));
+  showToast('Kategori silindi');
+}
+
+window.updateCategoryDelivery = async function(id, val) {
+  const days = val ? parseInt(val) : null;
+  await updateDoc(doc(db, 'categories', id), { deliveryDays: days });
+  showToast('Teslim süresi kaydedildi');
+}
+
+window.toggleSetting = async function(key) {
+  const current = siteSettings[key] || false;
+  await setDoc(doc(db, 'settings', 'main'), { [key]: !current }, { merge: true });
+  siteSettings[key] = !current;
+  showToast((!current ? 'Aktif' : 'Pasif') + ' edildi');
+  renderAdminSettings();
+}
+
+window.saveSetting = async function(key, val) {
+  await setDoc(doc(db, 'settings', 'main'), { [key]: val }, { merge: true });
+  siteSettings[key] = val;
+  showToast('Kaydedildi');
+}
+
+window.saveNotifEmail = async function() {
+  const email = document.getElementById('notif-email').value.trim();
+  if (!email) return;
+  await setDoc(doc(db, 'settings', 'main'), { notifEmail: email }, { merge: true });
+  siteSettings.notifEmail = email;
+  showToast('Mail adresi kaydedildi');
+}
+
+window.saveMinOrder = async function() {
+  const val = parseFloat(document.getElementById('min-order').value) || 0;
+  await setDoc(doc(db, 'settings', 'main'), { minOrder: val }, { merge: true });
+  siteSettings.minOrder = val;
+  showToast('Minimum tutar kaydedildi');
+}
+
+window.addRoute = async function() {
+  const name = document.getElementById('new-route-name').value.trim();
+  const region = document.getElementById('new-route-region').value.trim();
+  const allDays = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+  const days = allDays.filter(d => document.getElementById('nd-'+d)?.checked);
+  if (!name || days.length === 0) { alert('Rota adı ve en az bir gün seçin.'); return; }
+  await addDoc(collection(db, 'routes'), { name, region, days, createdAt: new Date().toISOString() });
+  showToast('Rota eklendi');
+}
+
+window.deleteRoute = async function(id) {
+  if (!confirm('Bu rota silinsin mi?')) return;
+  await deleteDoc(doc(db, 'routes', id));
+  showToast('Rota silindi');
+}
+
 </script>
 </body>
 </html>
