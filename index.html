@@ -22,14 +22,14 @@
 
   /* NAV */
   nav { background: var(--nav-bg); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 60px; position: sticky; top: 0; z-index: 100; }
-  nav .logo { font-weight: 700; font-size: 18px; display:flex; align-items:center; }
+  nav .logo { font-weight: 500; font-size: 18px; display:flex; align-items:center; }
   nav .nav-right { display: flex; align-items: center; gap: 6px; }
   nav button { background: transparent; color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.18); border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 13px; font-family: inherit; transition: all 0.2s; }
   nav button.active { background: rgba(255,255,255,0.18); color: white; border-color: rgba(255,255,255,0.35); }
   nav button:hover { background: rgba(255,255,255,0.12); color: white; }
-  .cart-badge { background: var(--accent); color: white; border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700; margin-left: 4px; }
+  .cart-badge { background: var(--accent); color: white; border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 500; margin-left: 4px; }
   .user-pill { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); border-radius: 20px; padding: 5px 14px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
-  .user-avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; }
+  .user-avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: white; }
   @media (max-width: 640px) {
     nav { flex-direction: column; height: auto; padding: 10px 14px; gap: 8px; }
     nav .nav-right { flex-wrap: wrap; justify-content: center; gap: 5px; width: 100%; }
@@ -41,17 +41,17 @@
   #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #eef4f5 0%, #e2eef0 100%); }
   .auth-box { background: #fff; border-radius: 16px; padding: 44px 40px; max-width: 400px; width: 100%; box-shadow: 0 8px 32px rgba(43,103,119,0.10); }
   .auth-logo { text-align: center; margin-bottom: 20px; }
-  .auth-title { text-align: center; font-size: 24px; font-weight: 800; margin-bottom: 4px; color: var(--nav-bg); letter-spacing: 0.06em; }
+  .auth-title { text-align: center; font-size: 24px; font-weight: 500; margin-bottom: 4px; color: var(--nav-bg); letter-spacing: 0.06em; }
   .auth-sub { text-align: center; color: var(--text-soft); font-size: 13px; margin-bottom: 28px; }
   .auth-tabs { display: flex; background: var(--bg); border-radius: 8px; padding: 3px; margin-bottom: 24px; gap: 2px; }
-  .auth-tab { flex: 1; text-align: center; padding: 9px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--text-soft); transition: all 0.2s; }
+  .auth-tab { flex: 1; text-align: center; padding: 9px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-soft); transition: all 0.2s; }
   .auth-tab.active { background: var(--nav-bg); color: white; box-shadow: 0 2px 8px rgba(43,103,119,0.2); }
   .auth-input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 14px; margin-bottom: 10px; font-family: inherit; transition: border-color 0.2s; background: #fafbfb; color: var(--text); }
   .auth-input:focus { outline: none; border-color: var(--nav-bg); background: white; }
-  .auth-btn { width: 100%; background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 12px; font-family: inherit; transition: background 0.2s; }
+  .auth-btn { width: 100%; background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 500; cursor: pointer; margin-bottom: 12px; font-family: inherit; transition: background 0.2s; }
   .auth-btn:hover { background: var(--accent-hover); }
   .auth-divider { text-align: center; color: var(--text-soft); font-size: 12px; margin: 10px 0; }
-  .google-btn { width: 100%; background: #fff; color: var(--text); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: inherit; transition: border-color 0.2s; }
+  .google-btn { width: 100%; background: #fff; color: var(--text); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: inherit; transition: border-color 0.2s; }
   .google-btn:hover { border-color: var(--border-dark); background: var(--bg); }
   .auth-err { color: #e05252; font-size: 13px; margin-bottom: 10px; display: none; text-align: center; background: #fef2f2; border-radius: 6px; padding: 8px 12px; }
   .auth-info { background: #f0fdf9; border: 1px solid #a7f3d0; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #065f46; margin-bottom: 12px; display: none; }
@@ -73,7 +73,7 @@
 
   /* CATALOG */
   .cat-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
-  .cat-btn { border: 1.5px solid var(--border); background: var(--surface); border-radius: 6px; padding: 7px 18px; cursor: pointer; font-size: 13px; font-family: inherit; font-weight: 600; color: var(--text-soft); transition: all 0.18s; }
+  .cat-btn { border: 1.5px solid var(--border); background: var(--surface); border-radius: 6px; padding: 7px 18px; cursor: pointer; font-size: 13px; font-family: inherit; font-weight: 500; color: var(--text-soft); transition: all 0.18s; }
   .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
   .cat-btn.active { border-color: var(--nav-bg); background: var(--nav-bg); color: white; }
   .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 18px; }
@@ -84,57 +84,57 @@
   .product-card:hover { box-shadow: 0 4px 20px rgba(43,103,119,0.10); border-color: var(--border-dark); }
   .product-card.out-of-stock { opacity: 0.55; }
   .product-emoji { font-size: 32px; margin-bottom: 10px; }
-  .product-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+  .product-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; color: var(--text); }
   .product-cat { font-size: 11px; color: var(--text-soft); margin-bottom: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
-  .product-price { font-size: 18px; font-weight: 800; color: var(--nav-bg); margin-bottom: 12px; }
-  .stock-badge { position: absolute; top: 12px; right: 12px; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
+  .product-price { font-size: 18px; font-weight: 500; color: var(--nav-bg); margin-bottom: 12px; }
+  .stock-badge { position: absolute; top: 12px; right: 12px; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; }
   .stock-badge.out { background: #fef2f2; color: #dc2626; }
   .stock-badge.low { background: #fef9ee; color: #d97706; }
-  .add-to-cart { width: 100%; background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+  .add-to-cart { width: 100%; background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 10px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.2s; }
   .add-to-cart:hover { background: var(--accent-hover); }
   .add-to-cart:disabled { background: #ddd; color: #aaa; cursor: not-allowed; }
   .qty-control { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border-radius: 8px; padding: 4px 6px; }
-  .qty-btn { width: 30px; height: 30px; border-radius: 6px; border: none; background: var(--surface); cursor: pointer; font-size: 16px; font-weight: 700; color: var(--text); transition: background 0.15s; }
+  .qty-btn { width: 30px; height: 30px; border-radius: 6px; border: none; background: var(--surface); cursor: pointer; font-size: 16px; font-weight: 500; color: var(--text); transition: background 0.15s; }
   .qty-btn:hover { background: var(--border-dark); }
-  .qty-num { font-weight: 700; font-size: 15px; color: var(--text); min-width: 24px; text-align: center; }
+  .qty-num { font-weight: 500; font-size: 15px; color: var(--text); min-width: 24px; text-align: center; }
 
   /* CART */
   .cart-item { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
   .cart-item-emoji { font-size: 28px; }
   .cart-item-info { flex: 1; }
-  .cart-item-name { font-size: 15px; font-weight: 700; }
+  .cart-item-name { font-size: 15px; font-weight: 500; }
   .cart-item-price { font-size: 13px; color: var(--text-soft); margin-top: 2px; }
   .cart-item-controls { display: flex; align-items: center; gap: 8px; }
-  .cart-qty-btn { width: 28px; height: 28px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); cursor: pointer; font-size: 14px; font-weight: 700; color: var(--text); }
+  .cart-qty-btn { width: 28px; height: 28px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text); }
   .cart-qty-btn:hover { border-color: var(--accent); }
-  .cart-qty-num { font-weight: 700; min-width: 20px; text-align: center; }
-  .cart-item-total { font-size: 15px; font-weight: 800; color: var(--nav-bg); min-width: 70px; text-align: right; }
+  .cart-qty-num { font-weight: 500; min-width: 20px; text-align: center; }
+  .cart-item-total { font-size: 15px; font-weight: 500; color: var(--nav-bg); min-width: 70px; text-align: right; }
   .summary-box { background: var(--surface); border-radius: 12px; padding: 20px; border: 1.5px solid var(--border); margin-top: 16px; }
   .summary-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
-  .summary-total { font-size: 18px; font-weight: 800; color: var(--nav-bg); border-top: 2px solid var(--border); padding-top: 12px; margin-top: 8px; }
+  .summary-total { font-size: 18px; font-weight: 500; color: var(--nav-bg); border-top: 2px solid var(--border); padding-top: 12px; margin-top: 8px; }
   .order-input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 11px 14px; font-size: 14px; font-family: inherit; margin-bottom: 10px; background: #fafbfb; transition: border-color 0.2s; }
   .order-input:focus { outline: none; border-color: var(--nav-bg); background: white; }
-  .submit-order-btn { width: 100%; background: var(--accent); color: white; border: none; border-radius: 8px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; transition: background 0.2s; }
+  .submit-order-btn { width: 100%; background: var(--accent); color: white; border: none; border-radius: 8px; padding: 14px; font-size: 16px; font-weight: 500; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; transition: background 0.2s; }
   .submit-order-btn:hover { background: var(--accent-hover); }
 
   /* MY ORDERS */
   .my-order-card { background: var(--surface); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; border: 1.5px solid var(--border); }
   .my-order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .my-order-num { font-weight: 800; font-size: 15px; color: var(--nav-bg); }
+  .my-order-num { font-weight: 500; font-size: 15px; color: var(--nav-bg); }
   .my-order-date { font-size: 12px; color: var(--text-soft); }
   .my-order-items { font-size: 13px; color: var(--text-soft); margin-bottom: 10px; line-height: 1.6; }
-  .my-order-total { font-weight: 800; font-size: 16px; color: var(--nav-bg); }
+  .my-order-total { font-weight: 500; font-size: 16px; color: var(--nav-bg); }
 
   /* ADMIN TABS */
   .admin-tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 2px solid var(--border); padding-bottom: 0; flex-wrap: wrap; }
-  .admin-tab { background: transparent; border: none; padding: 10px 18px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--text-soft); font-family: inherit; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.18s; }
+  .admin-tab { background: transparent; border: none; padding: 10px 18px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-soft); font-family: inherit; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.18s; }
   .admin-tab.active { color: var(--nav-bg); border-bottom-color: var(--nav-bg); }
   .admin-tab:hover { color: var(--nav-bg); }
 
   /* STATS */
   .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 24px; }
   .stat-card { background: var(--surface); border-radius: 10px; padding: 18px 16px; border: 1.5px solid var(--border); }
-  .stat-num { font-size: 26px; font-weight: 800; color: var(--nav-bg); line-height: 1; }
+  .stat-num { font-size: 26px; font-weight: 500; color: var(--nav-bg); line-height: 1; }
   .stat-label { font-size: 12px; color: var(--text-soft); margin-top: 4px; letter-spacing: 0.04em; }
 
   /* ORDER CARDS */
@@ -144,9 +144,9 @@
   .order-card.tamamlandi { border-left-color: #22c55e; }
   .order-card.iptal { border-left-color: #ef4444; }
   .order-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .order-num { font-weight: 800; font-size: 15px; color: var(--nav-bg); }
+  .order-num { font-weight: 500; font-size: 15px; color: var(--nav-bg); }
   .order-date { font-size: 12px; color: var(--text-soft); }
-  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; margin-left: 8px; }
+  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; margin-left: 8px; }
   .badge-bekliyor { background: #fef3c7; color: #92400e; }
   .badge-hazirlaniyor { background: #dbeafe; color: #1e40af; }
   .badge-tamamlandi { background: #dcfce7; color: #166534; }
@@ -157,34 +157,34 @@
   .prod-admin-form { background: var(--surface); border-radius: 12px; padding: 22px 20px; margin-bottom: 20px; border: 1.5px solid var(--border); }
   .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 16px; }
   .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-group label { font-size: 12px; font-weight: 700; color: var(--text-soft); letter-spacing: 0.06em; text-transform: uppercase; }
+  .form-group label { font-size: 12px; font-weight: 500; color: var(--text-soft); letter-spacing: 0.06em; text-transform: uppercase; }
   .form-group input, .form-group select, .form-group textarea { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; background: #fafbfb; color: var(--text); transition: border-color 0.2s; }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--nav-bg); background: white; }
-  .add-prod-btn { background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 11px 24px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+  .add-prod-btn { background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 11px 24px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.2s; }
   .add-prod-btn:hover { background: var(--accent-hover); }
-  .section-title { font-size: 16px; font-weight: 800; margin-bottom: 16px; color: var(--text); letter-spacing: 0.02em; }
+  .section-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; color: var(--text); letter-spacing: 0.02em; }
 
   /* TABLES */
   .prod-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1.5px solid var(--border); }
-  .prod-table th { background: var(--bg); padding: 11px 14px; text-align: left; font-size: 11px; color: var(--text-soft); font-weight: 700; border-bottom: 1.5px solid var(--border); letter-spacing: 0.06em; text-transform: uppercase; }
+  .prod-table th { background: var(--bg); padding: 11px 14px; text-align: left; font-size: 11px; color: var(--text-soft); font-weight: 500; border-bottom: 1.5px solid var(--border); letter-spacing: 0.06em; text-transform: uppercase; }
   .prod-table td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   .prod-table tr:last-child td { border-bottom: none; }
   .prod-table tr:hover td { background: #f9fbfb; }
   .edit-input { border: 1.5px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 13px; width: 80px; font-family: inherit; background: #fafbfb; }
   .edit-input:focus { outline: none; border-color: var(--nav-bg); }
-  .save-btn { background: #ecfdf5; color: #065f46; border: 1.5px solid #a7f3d0; border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 12px; font-weight: 700; margin-right: 4px; font-family: inherit; transition: background 0.15s; }
+  .save-btn { background: #ecfdf5; color: #065f46; border: 1.5px solid #a7f3d0; border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 12px; font-weight: 500; margin-right: 4px; font-family: inherit; transition: background 0.15s; }
   .save-btn:hover { background: #d1fae5; }
   .del-btn { background: #fef2f2; color: #991b1b; border: 1.5px solid #fecaca; border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 12px; font-family: inherit; }
   .del-btn:hover { background: #fee2e2; }
-  h2 { margin-bottom: 24px; font-size: 24px; font-weight: 800; letter-spacing: 0.02em; }
-  .section-title { font-size: 16px; font-weight: 800; margin-bottom: 16px; }
+  h2 { margin-bottom: 24px; font-size: 24px; font-weight: 500; letter-spacing: 0.02em; }
+  .section-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; }
   .code-tag { font-family: monospace; background: #f0f5f6; padding: 3px 7px; border-radius: 4px; font-size: 11px; color: var(--text-soft); border: 1px solid var(--border); }
   .filter-row { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
   .filter-row select { border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-family: inherit; background: var(--surface); }
 
   /* USER TABLE */
   .user-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1.5px solid var(--border); }
-  .user-table th { background: var(--bg); padding: 11px 14px; text-align: left; font-size: 11px; color: var(--text-soft); font-weight: 700; border-bottom: 1.5px solid var(--border); letter-spacing: 0.06em; text-transform: uppercase; }
+  .user-table th { background: var(--bg); padding: 11px 14px; text-align: left; font-size: 11px; color: var(--text-soft); font-weight: 500; border-bottom: 1.5px solid var(--border); letter-spacing: 0.06em; text-transform: uppercase; }
   .user-table td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); }
 
   /* SUCCESS / OVERLAYS */
@@ -192,25 +192,25 @@
   .success-overlay.show { display: flex; }
   .success-box { background: #fff; border-radius: 16px; padding: 44px 40px; text-align: center; max-width: 340px; }
   .success-icon { font-size: 56px; margin-bottom: 16px; }
-  .success-box h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+  .success-box h3 { font-size: 20px; font-weight: 500; margin-bottom: 10px; }
   .success-box p { color: var(--text-soft); font-size: 14px; margin-bottom: 20px; }
-  .success-close { background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .success-close { background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
 
   /* ADMIN LOGIN */
   .login-wall { display: none; position: fixed; inset: 0; background: rgba(26,46,53,0.6); z-index: 500; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
   .login-wall.show { display: flex; }
   .login-box { background: #fff; border-radius: 16px; padding: 36px; max-width: 320px; width: 100%; }
-  .login-box h3 { margin-bottom: 20px; font-size: 20px; font-weight: 800; color: var(--nav-bg); }
+  .login-box h3 { margin-bottom: 20px; font-size: 20px; font-weight: 500; color: var(--nav-bg); }
   .login-box input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 11px 14px; font-size: 14px; margin-bottom: 10px; font-family: inherit; background: #fafbfb; }
   .login-box input:focus { outline: none; border-color: var(--nav-bg); }
-  .login-btn-admin { width: 100%; background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .login-btn-admin { width: 100%; background: var(--nav-bg); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
   .login-err { color: #e05252; font-size: 13px; margin-bottom: 8px; display: none; }
 
   /* MISC */
   .loading { text-align: center; padding: 60px; color: var(--text-soft); }
   .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--nav-bg); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--nav-bg); color: white; padding: 12px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none; box-shadow: 0 4px 16px rgba(43,103,119,0.25); }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--nav-bg); color: white; padding: 12px 22px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none; box-shadow: 0 4px 16px rgba(43,103,119,0.25); }
   .toast.show { opacity: 1; }
   .no-orders { text-align: center; padding: 60px 20px; color: var(--text-soft); font-size: 16px; }
 </style>
@@ -305,10 +305,10 @@
   <path class="cls-1" d="M849.95,1205.19v81.16h296.18v-150.57h-73.45v-149.1h150.02v-150.57h-150.02v-152.41h150.02v79.32h145.43v-228.79h-518.18v149.47h72.16v452.08h-72.16v69.41h0ZM1444.52,1209.42v76.94h524.43v-227.69h-151.67v77.12h-150.2v-452.08h77.31v-149.47h-299.86v149.47h76.39v452.08h-76.39v73.63h0ZM2446.18,913.05h-86.67l41.31-135.88c17.99,42.23,33.05,87.59,45.35,135.88h0ZM2327.74,534.05l-187.29,601.73h-77.31v150.57h300.04v-150.57h-71.43l22.03-77.3h177.56l24.05,77.3h-73.08v150.57h296.37v-150.57h-73.63l-187.29-601.73h-150.02ZM2907.99,1135.78v150.57h302.24v-150.57h-79.69v-452.08h79.69v79.32h150.57v-228.79h-603.38v228.79h150.57v-79.32h71.98v452.08h-71.98Z"/>
 </svg></div>
     <div class="nav-right">
-      <button onclick="showView('catalog')" id="btn-catalog" class="active">🛍️ Ürünler</button>
-      <button onclick="showView('cart')" id="btn-cart">🛒 <span class="cart-badge" id="cart-count">0</span></button>
-      <button onclick="showView('myorders')" id="btn-myorders">📋 Siparişlerim</button>
-      <button onclick="showAdmin()" id="btn-admin" style="display:none">⚙️ Panel</button>
+      <button onclick="showView('catalog')" id="btn-catalog" class="active">Ürünler</button>
+      <button onclick="showView('cart')" id="btn-cart"><span class="cart-badge" id="cart-count">0</span></button>
+      <button onclick="showView('myorders')" id="btn-myorders">Siparişlerim</button>
+      <button onclick="showAdmin()" id="btn-admin" style="display:none">Panel</button>
       <div class="user-pill">
         <div class="user-avatar" id="user-avatar">?</div>
         <span id="user-name-nav" style="font-size:12px">...</span>
@@ -335,12 +335,12 @@
 
   <div class="view" id="view-admin">
     <div class="admin-tabs">
-      <button class="admin-tab active" onclick="switchAdminTab('orders', this)">📋 Siparişler</button>
-      <button class="admin-tab" onclick="switchAdminTab('neworder', this)">➕ Sipariş Gir</button>
-      <button class="admin-tab" onclick="switchAdminTab('products', this)">📦 Ürünler</button>
-      <button class="admin-tab" onclick="switchAdminTab('stock', this)">📊 Stok</button>
-      <button class="admin-tab" onclick="switchAdminTab('users', this)">👥 Müşteriler</button>
-      <button class="admin-tab" onclick="switchAdminTab('reports', this)">📈 Raporlar</button>
+      <button class="admin-tab active" onclick="switchAdminTab('orders', this)">Siparişler</button>
+      <button class="admin-tab" onclick="switchAdminTab('neworder', this)">Sipariş Gir</button>
+      <button class="admin-tab" onclick="switchAdminTab('products', this)">Ürünler</button>
+      <button class="admin-tab" onclick="switchAdminTab('stock', this)">Stok</button>
+      <button class="admin-tab" onclick="switchAdminTab('users', this)">Müşteriler</button>
+      <button class="admin-tab" onclick="switchAdminTab('reports', this)">Raporlar</button>
     </div>
     <div id="admin-orders"></div>
     <div id="admin-neworder" style="display:none"></div>
@@ -355,7 +355,7 @@
 <div id="pending-screen" style="display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;z-index:200">
   <div style="background:#FFFFFF;border-radius:20px;padding:48px 40px;max-width:420px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.1)">
     <div style="font-size:56px;margin-bottom:16px">⏳</div>
-    <div style="font-size:22px;font-weight:700;margin-bottom:10px">Onay Bekleniyor</div>
+    <div style="font-size:22px;font-weight:500;margin-bottom:10px">Onay Bekleniyor</div>
     <div style="color:var(--text-soft);font-size:14px;margin-bottom:28px;line-height:1.6">Kaydınız alındı. Yönetici hesabınızı onayladıktan sonra sisteme erişebileceksiniz.</div>
     <button onclick="doLogout()" style="background:var(--text);color:white;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer">Çıkış Yap</button>
   </div>
@@ -363,7 +363,7 @@
 
 <div class="success-overlay" id="success-overlay">
   <div class="success-box">
-    <div class="success-icon">✅</div>
+    <div class="success-icon">✓</div>
     <h3>Sipariş Alındı!</h3>
     <p id="success-msg"></p>
     <button class="success-close" onclick="closeSuccess()">Tamam</button>
@@ -372,7 +372,7 @@
 
 <div class="login-wall" id="admin-login-wall">
   <div class="login-box">
-    <h3>🔒 Admin Girişi</h3>
+    <h3>Admin Girişi</h3>
     <div class="login-err" id="login-err">Şifre yanlış!</div>
     <input type="password" id="admin-pw" placeholder="Admin şifresi..." onkeydown="if(event.key==='Enter')tryAdminLogin()">
     <button class="login-btn-admin" onclick="tryAdminLogin()">Giriş</button>
@@ -479,7 +479,7 @@ window.doRegister = async function() {
       orderCount: 0, totalSpent: 0,
       approved: false
     });
-    showAuthInfo('Kaydınız alındı! Yönetici onayından sonra giriş yapabileceksiniz. 🎉');
+    showAuthInfo('Kaydınız alındı! Yönetici onayından sonra giriş yapabileceksiniz. ');
   } catch(e) {
     const msgs = { 'auth/email-already-in-use': 'Bu e-posta zaten kayıtlı.', 'auth/weak-password': 'Şifre çok zayıf.' };
     showAuthErr(msgs[e.code] || 'Kayıt başarısız: ' + e.message);
@@ -656,7 +656,7 @@ window.renderCatalog = function() {
     else if (!p.unstocked && lowStock) stockBadge = `<div class="stock-badge low">Son ${s}</div>`;
     return `<div class="product-card ${outOfStock ? 'out-of-stock' : ''}">
       ${stockBadge}
-      <div class="product-emoji">${p.emoji || '📦'}</div>
+      
       <div class="product-code">#${p.code || '---'}</div>
       <div class="product-name">${p.name}</div>
       <div class="product-cat">${p.cat}</div>
@@ -682,13 +682,13 @@ window.renderCart = function() {
   updateCartBadge();
   const el = document.getElementById('cart-content');
   const keys = Object.keys(cart);
-  if (keys.length === 0) { el.innerHTML = `<div class="cart-empty">🛒<br>Sepetiniz boş</div>`; return; }
+  if (keys.length === 0) { el.innerHTML = `<div class="cart-empty">Sepetiniz boş</div>`; return; }
   let total = 0;
   const items = keys.map(id => {
     const p = products.find(x => x.id == id); if (!p) return '';
     const sub = p.price * cart[id]; total += sub;
     return `<div class="cart-item">
-      <span style="font-size:28px">${p.emoji||'📦'}</span>
+      <span style="font-size:28px">${p.emoji||''}</span>
       <div class="cart-item-info">
         <div class="cart-item-name">${p.name} <span class="code-tag">#${p.code}</span></div>
         <div class="cart-item-price">
@@ -736,7 +736,7 @@ window.renderCart = function() {
         <input type="text" id="contact-name" placeholder="Yetkili adı *" value="${name}">
         <input type="tel" id="contact-phone" placeholder="Telefon *" value="${phone}">
         <textarea id="order-note" placeholder="Not eklemek ister misiniz?"></textarea>
-        <button class="submit-btn" id="submit-btn" onclick="submitOrder(${total})">✅ Siparişi Gönder</button>
+        <button class="submit-btn" id="submit-btn" onclick="submitOrder(${total})">Siparişi Gönder</button>
       </div>
     </div>`;
 }
@@ -773,7 +773,7 @@ window.submitOrder = async function(total) {
     document.getElementById('success-overlay').classList.add('show');
   } catch(e) {
     alert('Hata: ' + e.message);
-    btn.disabled = false; btn.textContent = '✅ Siparişi Gönder';
+    btn.disabled = false; btn.textContent = 'Siparişi Gönder';
   }
 }
 
@@ -790,8 +790,8 @@ window.renderMyOrders = function() {
   if (!currentUser) return;
   const mine = allOrders.filter(o => o.uid === currentUser.uid);
   const badgeMap = { bekliyor: 'badge-bekliyor', hazirlaniyor: 'badge-hazirlaniyor', tamamlandi: 'badge-tamamlandi', iptal: 'badge-iptal' };
-  const labelMap = { bekliyor: '⏳ Bekliyor', hazirlaniyor: '🔄 Hazırlanıyor', tamamlandi: '✅ Tamamlandı', iptal: '❌ İptal' };
-  if (mine.length === 0) { el.innerHTML = `<div class="no-orders">📋<br><br>Henüz sipariş vermediniz</div>`; return; }
+  const labelMap = { bekliyor: 'Bekliyor', hazirlaniyor: 'Hazırlanıyor', tamamlandi: 'Tamamlandı', iptal: 'İptal' };
+  if (mine.length === 0) { el.innerHTML = `<div class="no-orders">Henüz sipariş vermediniz</div>`; return; }
   // Özet
   const toplamHarcama = mine.filter(o=>o.status==='tamamlandi').reduce((a,o)=>a+o.total,0);
   el.innerHTML = `
@@ -803,13 +803,13 @@ window.renderMyOrders = function() {
       <div class="history-card ${o.status}">
         <div class="order-meta">
           <div><span class="order-num">${o.num}</span> <span class="status-badge ${badgeMap[o.status]||'badge-bekliyor'}">${labelMap[o.status]||o.status}</span></div>
-          <div class="order-date">📅 ${o.date}</div>
+          <div class="order-date">${o.date}</div>
         </div>
         <div style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.8">
           ${o.items.map(i => `<span class="code-tag">#${i.code}</span> ${i.name} ×${i.qty} <b>₺${i.price*i.qty}</b>`).join(' &nbsp;|&nbsp; ')}
         </div>
-        ${o.note ? `<div style="font-size:12px;color:#888;margin-bottom:6px">📝 ${o.note}</div>` : ''}
-        <div style="font-weight:700;font-size:15px">Toplam: ₺${o.total}</div>
+        ${o.note ? `<div style="font-size:12px;color:#888;margin-bottom:6px">${o.note}</div>` : ''}
+        <div style="font-weight:500;font-size:15px">Toplam: ₺${o.total}</div>
       </div>`).join('')}`;
 }
 
@@ -863,19 +863,19 @@ window.renderAdminOrders = function() {
             <div><span class="order-num">${o.num}</span> <span class="status-badge ${badgeMap[o.status]}">${labelMap[o.status]}</span></div>
             <div class="order-date">${o.date}</div>
           </div>
-          <div style="font-weight:600;font-size:13px;color:#444;margin-bottom:6px">🏪 ${o.cafe} — ${o.contact} (${o.phone})</div>
+          <div style="font-weight:500;font-size:13px;color:#444;margin-bottom:6px">${o.cafe} — ${o.contact} (${o.phone})</div>
           <div style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.7">${o.items.map(i=>`<span class="code-tag">#${i.code}</span> ${i.name} ×${i.qty} = ₺${i.price*i.qty}`).join(' | ')}</div>
-          ${o.note?`<div style="font-size:12px;color:#888;margin-bottom:8px">📝 ${o.note}</div>`:''}
-          <div style="font-weight:700;margin-bottom:10px">Toplam: ₺${o.total}</div>
+          ${o.note?`<div style="font-size:12px;color:#888;margin-bottom:8px">${o.note}</div>`:''}
+          <div style="font-weight:500;margin-bottom:10px">Toplam: ₺${o.total}</div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
-              <option value="bekliyor" ${o.status==='bekliyor'?'selected':''}>⏳ Bekliyor</option>
-              <option value="hazirlaniyor" ${o.status==='hazirlaniyor'?'selected':''}>🔄 Hazırlanıyor</option>
-              <option value="tamamlandi" ${o.status==='tamamlandi'?'selected':''}>✅ Tamamlandı</option>
-              <option value="iptal" ${o.status==='iptal'?'selected':''}>❌ İptal</option>
+              <option value="bekliyor" ${o.status==='bekliyor'?'selected':''}>Bekliyor</option>
+              <option value="hazirlaniyor" ${o.status==='hazirlaniyor'?'selected':''}>Hazırlanıyor</option>
+              <option value="tamamlandi" ${o.status==='tamamlandi'?'selected':''}>Tamamlandı</option>
+              <option value="iptal" ${o.status==='iptal'?'selected':''}>İptal</option>
             </select>
-            <button onclick="generateProforma('${o.id}')" style="background:#dbeafe;color:#1e40af;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">📄 Proforma</button>
-            <button onclick="deleteOrder('${o.id}', '${o.num}')" style="background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">🗑️ Sil</button>
+            <button onclick="generateProforma('${o.id}')" style="background:#dbeafe;color:#1e40af;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">Proforma</button>
+            <button onclick="deleteOrder('${o.id}', '${o.num}')" style="background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">Sil</button>
           </div>
         </div>`).join('')}`;
   if (filterStatus !== 'hepsi') document.getElementById('filter-status').value = filterStatus;
@@ -955,19 +955,19 @@ function showUnstockedCostModal(order, unstockedItems) {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:center;justify-content:center';
   modal.innerHTML = `
     <div style="background:white;border-radius:20px;padding:32px;max-width:460px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
-      <div style="font-size:24px;margin-bottom:8px">📦</div>
-      <div style="font-weight:700;font-size:18px;margin-bottom:6px">Alış Fiyatı Girin</div>
+      <div style="font-size:24px;margin-bottom:8px"></div>
+      <div style="font-weight:500;font-size:18px;margin-bottom:6px">Alış Fiyatı Girin</div>
       <div style="color:var(--text-soft);font-size:13px;margin-bottom:20px">${order.cafe} — ${order.num} nolu sipariş için stoksuz ürünlerin alış fiyatını girin:</div>
       ${unstockedItems.map(i => `
         <div style="margin-bottom:12px">
-          <label style="font-size:13px;font-weight:600;display:block;margin-bottom:4px">${i.name} (${i.qty} adet)</label>
+          <label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">${i.name} (${i.qty} adet)</label>
           <div style="display:flex;align-items:center;gap:8px">
             <input type="number" id="ucost-${i.id}" placeholder="Birim alış fiyatı (₺)" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px">
             <span style="font-size:13px;color:var(--text-soft)">₺/adet</span>
           </div>
         </div>`).join('')}
       <div style="display:flex;gap:10px;margin-top:20px">
-        <button onclick="confirmUnstockedCosts('${order.id}')" style="flex:1;background:var(--accent);color:var(--text);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">✅ Kaydet ve Tamamla</button>
+        <button onclick="confirmUnstockedCosts('${order.id}')" style="flex:1;background:var(--accent);color:var(--text);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer">Kaydet ve Tamamla</button>
         <button onclick="document.getElementById('unstocked-modal').remove()" style="background:var(--surface);color:var(--text);border:none;border-radius:10px;padding:12px 16px;font-size:14px;cursor:pointer">İptal</button>
       </div>
     </div>`;
@@ -1031,19 +1031,19 @@ window.generateProforma = function(orderId) {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; color: #1C1917; background: white; padding: 40px; }
   .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #1C1917; }
-  .company { font-size: 22px; font-weight: 800; letter-spacing: 1px; }
+  .company { font-size: 22px; font-weight: 500; letter-spacing: 1px; }
   .doc-title { text-align: right; }
-  .doc-title h1 { font-size: 28px; font-weight: 800; color: #1C1917; }
+  .doc-title h1 { font-size: 28px; font-weight: 500; color: #1C1917; }
   .doc-title .num { font-size: 14px; color: #78716C; margin-top: 4px; }
   .doc-title .date { font-size: 13px; color: #78716C; }
   .parties { display: flex; justify-content: space-between; margin-bottom: 30px; gap: 20px; }
   .party { flex: 1; background: #FBF9F6; border-radius: 10px; padding: 16px 20px; }
-  .party-label { font-size: 11px; font-weight: 700; color: #78716C; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-  .party-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .party-label { font-size: 11px; font-weight: 500; color: #78716C; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .party-name { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
   .party-detail { font-size: 13px; color: #78716C; }
   table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
   thead tr { background: #1C1917; color: white; }
-  thead th { padding: 10px 10px; text-align: left; font-size: 12px; font-weight: 600; }
+  thead th { padding: 10px 10px; text-align: left; font-size: 12px; font-weight: 500; }
   thead th:not(:first-child) { text-align: right; }
   thead th:nth-child(2) { text-align: center; }
   thead th:nth-child(3) { text-align: center; }
@@ -1051,7 +1051,7 @@ window.generateProforma = function(orderId) {
   tbody tr:hover { background: #fafaf8; }
   .totals { margin-left: auto; width: 320px; }
   .total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px solid #eee; }
-  .total-row.grand { font-size: 18px; font-weight: 800; border-bottom: none; padding-top: 10px; border-top: 2px solid #1C1917; margin-top: 4px; }
+  .total-row.grand { font-size: 18px; font-weight: 500; border-bottom: none; padding-top: 10px; border-top: 2px solid #1C1917; margin-top: 4px; }
   .note { margin-top: 30px; padding: 14px 18px; background: #FBF9F6; border-radius: 8px; font-size: 13px; color: #78716C; }
   .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 11px; color: #aaa; text-align: center; }
   @media print { body { padding: 20px; } }
@@ -1131,7 +1131,7 @@ window.generateProforma = function(orderId) {
     <div class="total-row grand"><span>GENEL TOPLAM</span><span>\u20ba${formatTR(totalWithVat)}</span></div>
   </div>
 
-  ${o.note ? `<div class="note">📝 <b>Not:</b> ${o.note}</div>` : ''}
+  ${o.note ? `<div class="note"><b>Not:</b> ${o.note}</div>` : ''}
 
   <div class="footer">Bu belge proforma fatura niteliğinde olup resmi fatura değildir. • Flat Coffee & Cake • ${new Date().toLocaleDateString('tr-TR')}</div>
 </body>
@@ -1180,10 +1180,10 @@ window.renderAdminProducts = function() {
   const el = document.getElementById('admin-products');
   el.innerHTML = `
     <div class="prod-admin-form">
-      <div class="section-title">➕ Yeni Ürün Ekle</div>
+      <div class="section-title">Yeni Ürün Ekle</div>
       <div class="form-grid">
         <div class="form-group">
-          <label>Ürün Kodu * <button onclick="suggestNextCode()" style="margin-left:6px;padding:2px 8px;background:var(--bg);border:1.5px solid var(--border);border-radius:5px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700;color:var(--text-soft);vertical-align:middle">Sıradaki ↗</button></label>
+          <label>Ürün Kodu * <button onclick="suggestNextCode()" style="margin-left:6px;padding:2px 8px;background:var(--bg);border:1.5px solid var(--border);border-radius:5px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500;color:var(--text-soft);vertical-align:middle">Sıradaki</button></label>
           <input id="np-code" placeholder="001">
           <div id="last-code-hint" style="font-size:11px;color:var(--text-soft);margin-top:2px"></div>
         </div>
@@ -1203,10 +1203,10 @@ window.renderAdminProducts = function() {
         </div>
         <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:20px">
           <input type="checkbox" id="np-unstocked" style="width:16px;height:16px;cursor:pointer">
-          <label for="np-unstocked" style="font-size:13px;cursor:pointer;color:var(--text)">📦 Stoksuz Satış <span style="font-size:11px;color:var(--text-soft)">(sipariş gelince alış fiyatı sorulsun)</span></label>
+          <label for="np-unstocked" style="font-size:13px;cursor:pointer;color:var(--text)">Stoksuz Satış <span style="font-size:11px;color:var(--text-soft)">(sipariş gelince alış fiyatı sorulsun)</span></label>
         </div>
       </div>
-      <button class="add-prod-btn" onclick="addProduct()">➕ Ürün Ekle</button>
+      <button class="add-prod-btn" onclick="addProduct()">Ürün Ekle</button>
     </div>
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
       <select id="prod-sort" onchange="renderAdminProducts()" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;background:var(--surface)">
@@ -1246,7 +1246,7 @@ window.renderAdminProducts = function() {
           return list;
         })().map(p => `<tr>
           <td><span class="code-tag">#${p.code}</span></td>
-          <td>${p.emoji||'📦'} ${p.name}</td>
+          <td>${p.emoji||''} ${p.name}</td>
           <td>${p.cat}</td>
           <td><input class="edit-input" type="number" value="${p.price}" id="price-${p.id}" style="width:90px"> ₺</td>
           <td>
@@ -1257,11 +1257,11 @@ window.renderAdminProducts = function() {
               <option value="0" ${(p.vat??0.20)==0?'selected':''}>Yok</option>
             </select>
           </td>
-          <td style="font-weight:600;color:#166534">₺${formatTR(p.price*(1+(p.vat??0.20)))}</td>
+          <td style="font-weight:500;color:#166534">₺${formatTR(p.price*(1+(p.vat??0.20)))}</td>
           <td><input class="edit-input" type="number" value="${p.stock??0}" id="stock-${p.id}" style="width:70px"></td>
           <td>
-            <button class="save-btn" onclick="saveProduct('${p.id}')">💾 Kaydet</button>
-            <button class="del-btn" onclick="deleteProduct('${p.id}')">🗑️</button>
+            <button class="save-btn" onclick="saveProduct('${p.id}')">Kaydet</button>
+            <button class="del-btn" onclick="deleteProduct('${p.id}')">Sil</button>
           </td>
         </tr>`).join('')}
       </tbody>
@@ -1281,7 +1281,7 @@ window.addProduct = async function() {
   const name = document.getElementById('np-name').value.trim();
   const price = parseFloat(document.getElementById('np-price').value);
   const cat = document.getElementById('np-cat').value.trim();
-  const emoji = document.getElementById('np-emoji').value.trim() || '📦';
+  const emoji = document.getElementById('np-emoji').value.trim() || '';
   const stock = parseInt(document.getElementById('np-stock').value) || 0;
   if (!code||!name||!price||!cat) { alert('Zorunlu alanları doldurun.'); return; }
   if (products.find(p=>p.code===code)) { alert('Bu kod zaten var!'); return; }
@@ -1289,7 +1289,7 @@ window.addProduct = async function() {
   const vatEl = document.getElementById('np-vat');
   const vat = vatEl ? Number(vatEl.value) : 0.20;
   await addDoc(collection(db, 'products'), { code, name, price, cat, emoji, stock: unstocked ? 0 : stock, unstocked, vat });
-  showToast('Ürün eklendi ✓');
+  showToast('Ürün eklendi');
   ['np-code','np-name','np-price','np-cat','np-emoji','np-stock'].forEach(id => document.getElementById(id).value='');
   document.getElementById('np-unstocked').checked = false;
 }
@@ -1306,7 +1306,7 @@ window.saveProduct = async function(id) {
   }
 
   await updateDoc(doc(db,'products',id), { price, stock, vat });
-  showToast('Kaydedildi ✓');
+  showToast('Kaydedildi');
 }
 
 window.deleteProduct = async function(id) {
@@ -1385,7 +1385,7 @@ window.renderAdminStock = function() {
       <div class="stat-card"><div class="stat-num" style="color:#ef4444">${out.length}</div><div class="stat-label">Tükenen</div></div>
     </div>
     ${low.length>0?`<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 18px;margin-bottom:20px">
-      <div style="font-weight:700;margin-bottom:8px;color:#92400e">⚠️ Kritik Stok</div>
+      <div style="font-weight:500;margin-bottom:8px;color:#92400e">Kritik Stok</div>
       ${low.map(p=>`<div style="font-size:13px;color:#78350f;margin-bottom:4px">${p.emoji} ${p.name} <span class="code-tag">#${p.code}</span> — ${p.stock<=0?'<b>Tükendi!</b>':`Kalan: <b>${p.stock}</b>`}</div>`).join('')}
     </div>`:''}
     <div style="display:flex;flex-direction:column;gap:8px">
@@ -1395,9 +1395,9 @@ window.renderAdminStock = function() {
         return `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);overflow:hidden">
           <!-- BAŞLIK SATIRI -->
           <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer" onclick="toggleStockRow('${p.id}')">
-            <span style="font-size:24px">${p.emoji||'📦'}</span>
+            <span style="font-size:24px">${p.emoji||''}</span>
             <div style="flex:1">
-              <div style="font-weight:700;font-size:14px">${p.name} <span class="code-tag">#${p.code}</span></div>
+              <div style="font-weight:500;font-size:14px">${p.name} <span class="code-tag">#${p.code}</span></div>
               <div style="font-size:12px;color:var(--text-soft);margin-top:2px">Satış: <b>₺${p.price}</b> &nbsp;|&nbsp; Stok: <b>${s} adet</b> &nbsp;|&nbsp; ${d}</div>
             </div>
             <!-- STOK GİRİŞİ -->
@@ -1405,7 +1405,7 @@ window.renderAdminStock = function() {
               <input class="edit-input" type="number" id="se-qty-${p.id}" placeholder="Adet" style="width:65px">
               <input class="edit-input" type="number" id="se-cost-${p.id}" placeholder="₺/adet" style="width:75px">
               <button class="save-btn" onclick="addStockEntry('${p.id}')">+ Giriş</button>
-              <button class="save-btn" onclick="event.stopPropagation();updateStock('${p.id}')" style="display:none" id="upd-${p.id}">💾</button>
+              <button class="save-btn" onclick="event.stopPropagation();updateStock('${p.id}')" style="display:none" id="upd-${p.id}">Kaydet</button>
             </div>
             <span id="arrow-${p.id}" style="font-size:18px;color:var(--text-soft);transition:transform 0.2s;display:inline-block">▾</span>
           </div>
@@ -1465,7 +1465,7 @@ window.loadProductStockHistory = async function(productId) {
             <td style="color:${remaining<=0?'#ef4444':remaining<e.qty?'#f59e0b':'#22c55e'};font-weight:600">${remaining} adet</td>
             <td>₺${e.cost}/adet</td>
             <td style="font-weight:600">₺${formatTRInt(e.qty*e.cost)}</td>
-            <td><button class="del-btn" onclick="deleteStockEntry('${e.id}',${e.qty},'${productId}')">🗑️</button></td>
+            <td><button class="del-btn" onclick="deleteStockEntry('${e.id}',${e.qty},'${productId}')">Sil</button></td>
           </tr>`;
         }).join('')}
       </tbody>
@@ -1506,14 +1506,14 @@ function renderAdminNewOrderUI() {
       <!-- SOL: Müşteri + Ürünler -->
       <div>
         <div class="prod-admin-form" style="margin-bottom:16px">
-          <div class="section-title">👤 Müşteri Seç</div>
+          <div class="section-title">Müşteri Seç</div>
           <select id="ao-user-select" onchange="renderAdminNewOrderUI()" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;background:#FFFFFF;color:var(--text)">
             <option value="">-- Müşteri seçin --</option>
             ${adminUsers.map(u => `<option value="${u.uid}" ${u.uid===selectedUid?'selected':''}>${u.cafe} — ${u.name}</option>`).join('')}
           </select>
           ${selectedUser ? `<div style="margin-top:10px;padding:10px;background:var(--surface);border-radius:8px;font-size:13px">
-            <div>🏪 <b>${selectedUser.cafe}</b></div>
-            <div style="color:var(--text-soft);margin-top:2px">📞 ${selectedUser.phone} | ✉️ ${selectedUser.email}</div>
+            <div><b>${selectedUser.cafe}</b></div>
+            <div style="color:var(--text-soft);margin-top:2px">${selectedUser.phone} | ${selectedUser.email}</div>
           </div>` : ''}
           <div style="margin-top:12px">
             <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Not (opsiyonel)</label>
@@ -1522,8 +1522,8 @@ function renderAdminNewOrderUI() {
         </div>
 
         <div class="prod-admin-form">
-          <div class="section-title">🛍️ Ürün Seç</div>
-          <input id="ao-search" oninput="filterAoProducts()" placeholder="🔍 Ürün adı ile ara..." style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;background:#fafbfb">
+          <div class="section-title">Ürün Seç</div>
+          <input id="ao-search" oninput="filterAoProducts()" placeholder="Ürün adı ile ara..." style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;background:#fafbfb">
           <div id="ao-cats" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
             ${['Tümü',...new Set(products.map(p=>p.cat))].map(c =>
               `<button onclick="setAoCat('${c}')" id="ao-cat-${c.replace(/[^a-zA-Z0-9]/g,'_')}" style="padding:4px 12px;border-radius:6px;border:1.5px solid var(--border);background:${c==='Tümü'?'var(--nav-bg)':'var(--surface)'};color:${c==='Tümü'?'white':'var(--text-soft)'};font-size:12px;cursor:pointer;font-family:inherit;font-weight:600">${c}</button>`
@@ -1533,15 +1533,15 @@ function renderAdminNewOrderUI() {
             ${products.map(p => {
               const qty = adminOrderCart[p.id] || 0;
               return `<div class="ao-prod-item" data-name="${p.name.toLowerCase()}" data-cat="${p.cat}" style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:${qty>0?'#fef9ee':'var(--bg)'};border-radius:8px;border:1.5px solid ${qty>0?'var(--accent)':'var(--border)'}">
-                <span style="font-size:18px">${p.emoji||'📦'}</span>
+                <span style="font-size:18px">${p.emoji||''}</span>
                 <div style="flex:1;min-width:0">
-                  <div style="font-weight:700;font-size:13px;color:var(--text)">${p.name}</div>
+                  <div style="font-weight:500;font-size:13px;color:var(--text)">${p.name}</div>
                   <div style="font-size:11px;color:var(--text-soft)">#${p.code} · ₺${p.price} · ${p.cat}</div>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-                  <button onclick="aoDecCart('${p.id}')" style="width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:white;cursor:pointer;font-size:15px;font-weight:700;line-height:1;color:var(--text)">−</button>
-                  <span style="font-weight:800;min-width:20px;text-align:center;font-size:14px">${qty||0}</span>
-                  <button onclick="aoAddCart('${p.id}')" style="width:28px;height:28px;border-radius:6px;border:1.5px solid var(--accent);background:var(--accent);color:white;cursor:pointer;font-size:15px;font-weight:700;line-height:1">+</button>
+                  <button onclick="aoDecCart('${p.id}')" style="width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:white;cursor:pointer;font-size:15px;font-weight:500;line-height:1;color:var(--text)">−</button>
+                  <span style="font-weight:500;min-width:20px;text-align:center;font-size:14px">${qty||0}</span>
+                  <button onclick="aoAddCart('${p.id}')" style="width:28px;height:28px;border-radius:6px;border:1.5px solid var(--accent);background:var(--accent);color:white;cursor:pointer;font-size:15px;font-weight:500;line-height:1">+</button>
                 </div>
               </div>`;
             }).join('')}
@@ -1551,7 +1551,7 @@ function renderAdminNewOrderUI() {
 
       <!-- SAĞ: Özet -->
       <div class="prod-admin-form" style="position:sticky;top:80px">
-        <div class="section-title">📋 Sipariş Özeti</div>
+        <div class="section-title">Sipariş Özeti</div>
         ${Object.keys(adminOrderCart).length === 0 ? `<div style="color:var(--text-soft);font-size:13px;text-align:center;padding:20px">Henüz ürün eklenmedi</div>` : ''}
         ${Object.keys(adminOrderCart).map(id => {
           const p = products.find(x=>x.id==id);
@@ -1562,17 +1562,17 @@ function renderAdminNewOrderUI() {
           </div>`;
         }).join('')}
         ${Object.keys(adminOrderCart).length > 0 ? `
-          <div style="border-top:2px solid var(--border);padding-top:10px;margin-top:10px;display:flex;justify-content:space-between;font-weight:700;font-size:16px">
+          <div style="border-top:2px solid var(--border);padding-top:10px;margin-top:10px;display:flex;justify-content:space-between;font-weight:500;font-size:16px">
             <span>Toplam</span>
             <span>₺${Object.keys(adminOrderCart).reduce((sum,id)=>{ const p=products.find(x=>x.id==id); return sum+(p?p.price*adminOrderCart[id]:0); },0)}</span>
           </div>
-          <button onclick="submitAdminOrder()" style="width:100%;background:var(--accent);color:var(--text);border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px">✅ Siparişi Kaydet</button>
+          <button onclick="submitAdminOrder()" style="width:100%;background:var(--accent);color:var(--text);border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px">Siparişi Kaydet</button>
         ` : ''}
       </div>
     </div>
 
     <div style="margin-top:20px;border-top:2px solid var(--border);padding-top:20px">
-      <div class="section-title">➕ Yeni Üye Ekle</div>
+      <div class="section-title">Yeni Üye Ekle</div>
       <div class="prod-admin-form">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
           <div><label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Kafe / Şube Adı *</label><input id="nu-cafe" placeholder="Flat Coffee Bağcılar" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px"></div>
@@ -1582,7 +1582,7 @@ function renderAdminNewOrderUI() {
           <div><label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Şifre * (min 6 karakter)</label><input id="nu-pw" type="password" placeholder="••••••" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px"></div>
         </div>
         <div id="nu-err" style="color:#ef4444;font-size:13px;margin-top:8px;display:none"></div>
-        <button onclick="addUserByAdmin()" style="background:var(--text);color:white;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:600;margin-top:12px">👤 Üye Oluştur</button>
+        <button onclick="addUserByAdmin()" style="background:var(--text);color:white;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:500;margin-top:12px">Üye Oluştur</button>
       </div>
     </div>`;
 }
@@ -1757,14 +1757,14 @@ window.renderAdminReports = async function() {
       <div class="stat-card"><div class="stat-num">%${margin}</div><div class="stat-label">Kar Marjı</div></div>
     </div>
     
-    ${orderReports.length === 0 ? '<div class="no-orders">📊<br><br>Henüz tamamlanan sipariş yok</div>' :
+    ${orderReports.length === 0 ? '<div class="no-orders">Henüz tamamlanan sipariş yok</div>' :
       orderReports.map(o => `
         <div class="order-card tamamlandi" style="margin-bottom:16px">
           <div class="order-meta">
             <div><span class="order-num">${o.num}</span> <span class="status-badge badge-tamamlandi">Tamamlandı</span></div>
             <div class="order-date">${o.date}</div>
           </div>
-          <div style="font-weight:600;font-size:13px;color:#444;margin-bottom:10px">🏪 ${o.cafe}</div>
+          <div style="font-weight:500;font-size:13px;color:#444;margin-bottom:10px">${o.cafe}</div>
           
           <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px">
             <thead>
@@ -1783,7 +1783,7 @@ window.renderAdminReports = async function() {
                   <td style="padding:8px;text-align:right">${i.qty}</td>
                   <td style="padding:8px;text-align:right">₺${formatTRInt(i.revenue)}</td>
                   <td style="padding:8px;text-align:right;color:#ef4444">₺${formatTRInt(i.cost)}</td>
-                  <td style="padding:8px;text-align:right;font-weight:700;color:${i.profit>=0?'#22c55e':'#ef4444'}">₺${formatTRInt(i.profit)} <span style="font-size:10px;color:var(--text-soft)">(${i.margin}%)</span></td>
+                  <td style="padding:8px;text-align:right;font-weight:500;color:${i.profit>=0?'#22c55e':'#ef4444'}">₺${formatTRInt(i.profit)} <span style="font-size:10px;color:var(--text-soft)">(${i.margin}%)</span></td>
                 </tr>`).join('')}
             </tbody>
           </table>
@@ -1813,7 +1813,7 @@ window.renderAdminUsers = async function() {
     
     <!-- MÜŞTERİ SATIŞ GEÇMİŞİ -->
     <div style="background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:20px">
-      <div class="section-title" style="margin-bottom:12px">📊 Müşteri Satış Geçmişi</div>
+      <div class="section-title" style="margin-bottom:12px">Müşteri Satış Geçmişi</div>
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
         <select id="customer-filter" onchange="renderCustomerHistory()" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;min-width:200px">
           <option value="">-- Müşteri seçin --</option>
@@ -1821,10 +1821,10 @@ window.renderAdminUsers = async function() {
         </select>
         <select id="customer-status-filter" onchange="renderCustomerHistory()" style="border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px">
           <option value="">Tüm Durumlar</option>
-          <option value="bekliyor">⏳ Bekliyor</option>
-          <option value="hazirlaniyor">🔄 Hazırlanıyor</option>
-          <option value="tamamlandi">✅ Tamamlandı</option>
-          <option value="iptal">❌ İptal</option>
+          <option value="bekliyor">Bekliyor</option>
+          <option value="hazirlaniyor">Hazırlanıyor</option>
+          <option value="tamamlandi">Tamamlandı</option>
+          <option value="iptal">İptal</option>
         </select>
       </div>
       <div id="customer-history-content"><div style="color:var(--text-soft);font-size:13px;text-align:center;padding:20px">Müşteri seçin</div></div>
@@ -1833,7 +1833,7 @@ window.renderAdminUsers = async function() {
       <thead><tr><th>Durum</th><th>Kafe / Şube</th><th>Yetkili</th><th>Telefon</th><th>E-posta</th><th>Sipariş</th><th>Harcama</th><th>Kayıt</th><th>İşlem</th></tr></thead>
       <tbody>
         ${users.sort((a,b) => (a.approved===false?-1:1)).map(u=>`<tr id="userrow-${u.uid}" style="${u.approved===false?'background:#fffbeb;':''}">
-          <td>${u.approved===false ? '<span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">⏳ Bekliyor</span>' : '<span style="background:#dcfce7;color:#166534;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">✅ Onaylı</span>'}</td>
+          <td>${u.approved===false ? '<span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">Bekliyor</span>' : '<span style="background:#dcfce7;color:#166534;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700">Onaylı</span>'}</td>
           <td><input value="${u.cafe||''}" id="ue-cafe-${u.uid}" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;width:130px"></td>
           <td><input value="${u.name||''}" id="ue-name-${u.uid}" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;width:110px"></td>
           <td><input value="${u.phone||''}" id="ue-phone-${u.uid}" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;width:120px"></td>
@@ -1842,10 +1842,10 @@ window.renderAdminUsers = async function() {
           <td>₺${formatTRInt(u.totalSpent||0)}</td>
           <td style="font-size:11px;color:var(--text-soft)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('tr-TR') : '-'}</td>
           <td style="display:flex;gap:4px;flex-wrap:wrap">
-            ${u.approved===false ? `<button onclick="approveUser('${u.uid}')" style="background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">✅ Onayla</button>` : ''}
-            <button onclick="toggleAdminAccess('${u.uid}', ${u.adminApproved===true})" style="background:${u.adminApproved===true?'#dbeafe':'#f1f5f9'};color:${u.adminApproved===true?'#1e40af':'#64748b'};border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">${u.adminApproved===true?'⚙️ Panel Var':'⚙️ Panel Ver'}</button>
-            <button class="save-btn" onclick="saveUser('${u.uid}')">💾</button>
-            <button class="del-btn" onclick="deleteUser('${u.uid}', '${u.cafe}')">🗑️</button>
+            ${u.approved===false ? `<button onclick="approveUser('${u.uid}')" style="background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">Onayla</button>` : ''}
+            <button onclick="toggleAdminAccess('${u.uid}', ${u.adminApproved===true})" style="background:${u.adminApproved===true?'#dbeafe':'#f1f5f9'};color:${u.adminApproved===true?'#1e40af':'#64748b'};border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">${u.adminApproved===true?'Panel Var':'Panel Ver'}</button>
+            <button class="save-btn" onclick="saveUser('${u.uid}')">Kaydet</button>
+            <button class="del-btn" onclick="deleteUser('${u.uid}', '${u.cafe}')">Sil</button>
           </td>
         </tr>`).join('')}
       </tbody>
@@ -1863,7 +1863,7 @@ window.renderCustomerHistory = function() {
   if (statusFilter) orders = orders.filter(o => o.status === statusFilter);
   
   const badgeMap = { bekliyor:'badge-bekliyor', hazirlaniyor:'badge-hazirlaniyor', tamamlandi:'badge-tamamlandi', iptal:'badge-iptal' };
-  const labelMap = { bekliyor:'⏳ Bekliyor', hazirlaniyor:'🔄 Hazırlanıyor', tamamlandi:'✅ Tamamlandı', iptal:'❌ İptal' };
+  const labelMap = { bekliyor:'Bekliyor', hazirlaniyor:'Hazırlanıyor', tamamlandi:'Tamamlandı', iptal:'İptal' };
   
   const totalSpent = orders.filter(o=>o.status==='tamamlandi').reduce((s,o)=>s+o.total,0);
   
@@ -1878,12 +1878,12 @@ window.renderCustomerHistory = function() {
       <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${o.status==='tamamlandi'?'#22c55e':o.status==='bekliyor'?'#f59e0b':o.status==='hazirlaniyor'?'#3b82f6':'#ef4444'}">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
           <div><span style="font-weight:700">${o.num}</span> <span class="status-badge ${badgeMap[o.status]||'badge-bekliyor'}">${labelMap[o.status]||o.status}</span></div>
-          <div style="font-size:12px;color:var(--text-soft)">📅 ${o.date}</div>
+          <div style="font-size:12px;color:var(--text-soft)">${o.date}</div>
         </div>
         <div style="font-size:13px;color:var(--text-soft);margin-bottom:8px;line-height:1.8">
           ${o.items.map(i=>`<span class="code-tag">#${i.code}</span> ${i.name} ×${i.qty} = <b>₺${i.price*i.qty}</b>`).join(' &nbsp;|&nbsp; ')}
         </div>
-        ${o.note?`<div style="font-size:12px;color:var(--text-soft);margin-bottom:6px">📝 ${o.note}</div>`:''}
+        ${o.note?`<div style="font-size:12px;color:var(--text-soft);margin-bottom:6px">${o.note}</div>`:''}
         <div style="font-weight:700">Toplam: ₺${formatTRInt(o.total)}</div>
       </div>`).join('')}`;
 }
