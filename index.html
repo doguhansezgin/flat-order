@@ -428,6 +428,7 @@ function effPrice(p) { return cartPrices[p.id] !== undefined ? cartPrices[p.id] 
 function canEditPrice() { return ADMIN_EMAILS.includes(currentUser?.email) || userProfile?.adminApproved === true || adminLoggedIn; }
 
 window.setCartPrice = function(id, val) {
+  if (!canEditPrice()) return; // yetkisiz çağrıları engelle
   const p = products.find(x => x.id == id);
   const num = parseFloat(String(val).replace(',', '.'));
   if (isNaN(num) || num < 0) { delete cartPrices[id]; }
@@ -823,9 +824,9 @@ window.submitOrder = async function(total) {
   btn.disabled = true; btn.textContent = 'Gönderiliyor...';
   const items = Object.keys(cart).map(id => { 
     const p = products.find(x=>x.id==id); 
-    const pr = effPrice(p);
+    const pr = canEditPrice() ? effPrice(p) : p.price; // müşteride her zaman liste fiyatı
     const it = { id: p.id, code: p.code, name: p.name, qty: cart[id], price: pr };
-    if (cartPrices[p.id] !== undefined) { it.listPrice = p.price; it.priceEdited = true; }
+    if (canEditPrice() && cartPrices[p.id] !== undefined) { it.listPrice = p.price; it.priceEdited = true; }
     return it;
   });
   const orderNum = 'SP' + Date.now().toString().slice(-6);
@@ -1702,6 +1703,7 @@ let adminOrderCart = {};
 let aoPrices = {}; // id -> siparişe özel birim fiyat (Sipariş Gir)
 
 window.aoSetPrice = function(id, val) {
+  if (!canEditPrice()) return; // yetkisiz çağrıları engelle
   const p = products.find(x => x.id == id);
   const num = parseFloat(String(val).replace(',', '.'));
   if (isNaN(num) || num < 0 || (p && num === p.price)) delete aoPrices[id];
