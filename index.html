@@ -725,7 +725,7 @@ window.renderCatalog = function() {
       <div class="product-price">₺${p.price}</div>
       ${(outOfStock && !p.unstocked) ? `<button class="add-btn" disabled style="background:#ccc;cursor:not-allowed">Tükendi</button>` :
         qty === 0 ? `<button class="add-btn" onclick="addToCart('${p.id}')">+ Sepete Ekle</button>` :
-        `<div class="qty-ctrl"><button onclick="decCart('${p.id}')">−</button><span>${qty}</span><button onclick="addToCart('${p.id}')">+</button></div>`
+        `<div class="qty-ctrl"><button onclick="decCart('${p.id}')">−</button><input type="number" min="0" value="${qty}" onchange="setCartQty('${p.id}', this.value)" style="width:44px;text-align:center;font-weight:500;font-size:14px;border:1.5px solid var(--border);border-radius:6px;padding:4px 2px;font-family:inherit"><button onclick="addToCart('${p.id}')">+</button></div>`
       }
     </div>`;
   }).join('');
@@ -735,6 +735,13 @@ window.renderCatalog = function() {
 window.setCat = function(c) { activeCat = c; renderCatalog(); }
 window.addToCart = function(id) { cart[id] = (cart[id] || 0) + 1; renderCatalog(); updateCartBadge(); }
 window.decCart = function(id) { cart[id] = (cart[id] || 1) - 1; if (cart[id] === 0) { delete cart[id]; delete cartPrices[id]; } renderCatalog(); updateCartBadge(); }
+window.setCartQty = function(id, val) {
+  const n = parseInt(val, 10);
+  if (isNaN(n) || n <= 0) { delete cart[id]; delete cartPrices[id]; }
+  else cart[id] = n;
+  renderCatalog(); updateCartBadge();
+  if (document.getElementById('view-cart')?.classList.contains('active')) renderCart();
+}
 function updateCartBadge() { document.getElementById('cart-count').textContent = Object.values(cart).reduce((a,b)=>a+b,0); }
 
 // =====================
@@ -767,7 +774,7 @@ window.renderCart = function() {
       </div>
       <div class="qty-ctrl">
         <button onclick="decCart('${p.id}');renderCart();">−</button>
-        <span>${cart[id]}</span>
+        <input type="number" min="0" value="${cart[id]}" onchange="setCartQty('${p.id}', this.value);renderCart();" style="width:44px;text-align:center;font-weight:500;font-size:14px;border:1.5px solid var(--border);border-radius:6px;padding:4px 2px;font-family:inherit">
         <button onclick="addToCart('${p.id}');renderCart();">+</button>
       </div>
       <div class="cart-item-total">₺${formatTRInt(sub)}</div>
@@ -881,7 +888,10 @@ window.renderMyOrders = function() {
           ${o.items.map(i => `<span class="code-tag">#${i.code}</span> ${i.name} ×${i.qty} <b>₺${i.price*i.qty}</b>`).join(' &nbsp;|&nbsp; ')}
         </div>
         ${o.note ? `<div style="font-size:12px;color:#888;margin-bottom:6px">${o.note}</div>` : ''}
-        <div style="font-weight:500;font-size:15px">Toplam: ₺${o.total}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:500;font-size:15px">Toplam: ₺${o.total}</div>
+          <button onclick="reorderToCart('${o.id}')" style="background:var(--surface);border:1.5px solid var(--accent);color:var(--accent);border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">↻ Siparişi Tekrarla</button>
+        </div>
         ${o.status === 'teslim-bekliyor' ? (
           (o.deliveryIssue && !o.issueResolved)
           ? `<div style="margin-top:10px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 14px;font-size:13px;color:#991b1b">
@@ -891,6 +901,24 @@ window.renderMyOrders = function() {
           : dlvForm(o)
         ) : ''}
       </div>`).join('')}`;
+}
+
+window.reorderToCart = function(oid) {
+  const o = allOrders.find(x => x.id === oid);
+  if (!o) return;
+  const bulunamayan = [];
+  let eklenen = 0;
+  o.items.forEach(i => {
+    const p = products.find(x => x.id === i.id);
+    if (!p) { bulunamayan.push(i.name); return; }
+    cart[p.id] = (cart[p.id] || 0) + i.qty;
+    eklenen++;
+  });
+  updateCartBadge();
+  if (eklenen === 0) { alert('Bu siparişteki ürünler artık katalogda bulunmuyor.'); return; }
+  if (bulunamayan.length) alert('Şu ürünler artık katalogda olmadığı için sepete eklenemedi:\n• ' + bulunamayan.join('\n• '));
+  showView('cart');
+  showToast('Sipariş sepete kopyalandı, düzenleyip gönderebilirsiniz ✓');
 }
 
 // =====================
@@ -1686,6 +1714,9 @@ function renderAdminNewOrderUI() {
   const el = document.getElementById('admin-neworder');
   const selectedUid = document.getElementById('ao-user-select')?.value || '';
   const selectedUser = adminUsers.find(u => u.uid === selectedUid);
+  const prevSearch = document.getElementById('ao-search')?.value || '';
+  const prevNote = document.getElementById('ao-note')?.value || '';
+  const prevDate = document.getElementById('ao-date')?.value || new Date().toISOString().slice(0,10);
 
   el.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
@@ -1703,20 +1734,20 @@ function renderAdminNewOrderUI() {
           </div>` : ''}
           <div style="margin-top:12px">
             <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Sipariş Tarihi</label>
-            <input type="date" id="ao-date" value="${new Date().toISOString().slice(0,10)}" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fafbfb;color:var(--text)">
+            <input type="date" id="ao-date" value="${prevDate}" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fafbfb;color:var(--text)">
           </div>
           <div style="margin-top:10px">
             <label style="font-size:12px;color:var(--text-soft);display:block;margin-bottom:4px">Not (opsiyonel)</label>
-            <textarea id="ao-note" placeholder="Sipariş notu..." style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;height:70px;resize:vertical"></textarea>
+            <textarea id="ao-note" placeholder="Sipariş notu..." style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;height:70px;resize:vertical">${prevNote}</textarea>
           </div>
         </div>
 
         <div class="prod-admin-form">
           <div class="section-title">Ürün Seç</div>
-          <input id="ao-search" oninput="filterAoProducts()" placeholder="Ürün adı ile ara..." style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;background:#fafbfb">
+          <input id="ao-search" value="${prevSearch.replace(/"/g,'&quot;')}" oninput="filterAoProducts()" placeholder="Ürün adı ile ara..." style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;background:#fafbfb">
           <div id="ao-cats" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
             ${['Tümü',...new Set(products.map(p=>p.cat))].map(c =>
-              `<button onclick="setAoCat('${c}')" id="ao-cat-${c.replace(/[^a-zA-Z0-9]/g,'_')}" style="padding:4px 12px;border-radius:6px;border:1.5px solid var(--border);background:${c==='Tümü'?'var(--nav-bg)':'var(--surface)'};color:${c==='Tümü'?'white':'var(--text-soft)'};font-size:12px;cursor:pointer;font-family:inherit;font-weight:600">${c}</button>`
+              `<button onclick="setAoCat('${c}')" id="ao-cat-${c.replace(/[^a-zA-Z0-9]/g,'_')}" style="padding:4px 12px;border-radius:6px;border:1.5px solid ${c===_aoCat?'var(--nav-bg)':'var(--border)'};background:${c===_aoCat?'var(--nav-bg)':'var(--surface)'};color:${c===_aoCat?'white':'var(--text-soft)'};font-size:12px;cursor:pointer;font-family:inherit;font-weight:600">${c}</button>`
             ).join('')}
           </div>
           <div id="ao-product-list" style="display:flex;flex-direction:column;gap:6px;max-height:380px;overflow-y:auto">
@@ -1730,7 +1761,7 @@ function renderAdminNewOrderUI() {
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
                   <button onclick="aoDecCart('${p.id}')" style="width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:white;cursor:pointer;font-size:15px;font-weight:500;line-height:1;color:var(--text)">−</button>
-                  <span style="font-weight:500;min-width:20px;text-align:center;font-size:14px">${qty||0}</span>
+                  <input type="number" min="0" value="${qty||0}" onchange="aoSetQty('${p.id}', this.value)" style="width:46px;text-align:center;font-weight:500;font-size:14px;border:1.5px solid var(--border);border-radius:6px;padding:5px 2px;font-family:inherit">
                   <button onclick="aoAddCart('${p.id}')" style="width:28px;height:28px;border-radius:6px;border:1.5px solid var(--accent);background:var(--accent);color:white;cursor:pointer;font-size:15px;font-weight:500;line-height:1">+</button>
                 </div>
               </div>`;
@@ -1775,6 +1806,7 @@ function renderAdminNewOrderUI() {
         <button onclick="addUserByAdmin()" style="background:var(--text);color:white;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:500;margin-top:12px">Üye Oluştur</button>
       </div>
     </div>`;
+  filterAoProducts();
 }
 
 let _aoCat = 'Tümü';
@@ -1805,6 +1837,13 @@ window.setAoCat = function(cat) {
 
 window.aoAddCart = function(id) {
   adminOrderCart[id] = (adminOrderCart[id] || 0) + 1;
+  renderAdminNewOrderUI();
+}
+
+window.aoSetQty = function(id, val) {
+  const n = parseInt(val, 10);
+  if (isNaN(n) || n <= 0) delete adminOrderCart[id];
+  else adminOrderCart[id] = n;
   renderAdminNewOrderUI();
 }
 
