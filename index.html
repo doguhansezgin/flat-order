@@ -1699,6 +1699,15 @@ window.deleteStockEntry = async function(entryId, qty, productId) {
 // ADMIN - SİPARİŞ GİR
 // =====================
 let adminOrderCart = {};
+let aoPrices = {}; // id -> siparişe özel birim fiyat (Sipariş Gir)
+
+window.aoSetPrice = function(id, val) {
+  const p = products.find(x => x.id == id);
+  const num = parseFloat(String(val).replace(',', '.'));
+  if (isNaN(num) || num < 0 || (p && num === p.price)) delete aoPrices[id];
+  else aoPrices[id] = num;
+  renderAdminNewOrderUI();
+}
 let adminUsers = [];
 
 window.renderAdminNewOrder = async function() {
@@ -1707,6 +1716,7 @@ window.renderAdminNewOrder = async function() {
   const snap = await getDocs(collection(db, 'users'));
   adminUsers = snap.docs.map(d => d.data());
   adminOrderCart = {};
+  aoPrices = {};
   renderAdminNewOrderUI();
 }
 
@@ -1777,15 +1787,20 @@ function renderAdminNewOrderUI() {
         ${Object.keys(adminOrderCart).map(id => {
           const p = products.find(x=>x.id==id);
           if (!p) return '';
-          return `<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
-            <span>${p.emoji} ${p.name} ×${adminOrderCart[id]}</span>
-            <span style="font-weight:700">₺${p.price * adminOrderCart[id]}</span>
+          const pr = aoPrices[id] !== undefined ? aoPrices[id] : p.price;
+          const edited = aoPrices[id] !== undefined;
+          return `<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px;gap:8px">
+            <span style="flex:1;min-width:0">${p.emoji} ${p.name} ×${adminOrderCart[id]}${edited?` <span style="font-size:10px;color:var(--accent);font-weight:700">ÖZEL</span>`:''}</span>
+            <span style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+              ₺<input type="number" step="0.01" min="0" value="${pr}" onchange="aoSetPrice('${p.id}', this.value)" title="Birim fiyat (liste: ₺${p.price})" style="width:70px;border:1.5px solid ${edited?'var(--accent)':'var(--border)'};border-radius:6px;padding:3px 6px;font-size:12px;font-family:inherit;text-align:right">
+              <span style="font-weight:700;min-width:56px;text-align:right">₺${formatTRInt(pr * adminOrderCart[id])}</span>
+            </span>
           </div>`;
         }).join('')}
         ${Object.keys(adminOrderCart).length > 0 ? `
           <div style="border-top:2px solid var(--border);padding-top:10px;margin-top:10px;display:flex;justify-content:space-between;font-weight:500;font-size:16px">
             <span>Toplam</span>
-            <span>₺${Object.keys(adminOrderCart).reduce((sum,id)=>{ const p=products.find(x=>x.id==id); return sum+(p?p.price*adminOrderCart[id]:0); },0)}</span>
+            <span>₺${formatTRInt(Object.keys(adminOrderCart).reduce((sum,id)=>{ const p=products.find(x=>x.id==id); if(!p) return sum; const pr = aoPrices[id] !== undefined ? aoPrices[id] : p.price; return sum + pr*adminOrderCart[id]; },0))}</span>
           </div>
           <button onclick="submitAdminOrder()" style="width:100%;background:var(--accent);color:var(--text);border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px">Siparişi Kaydet</button>
         ` : ''}
@@ -1858,7 +1873,13 @@ window.submitAdminOrder = async function() {
   if (!uid) { alert('Lütfen bir müşteri seçin.'); return; }
   if (Object.keys(adminOrderCart).length === 0) { alert('Sepet boş.'); return; }
   const user = adminUsers.find(u => u.uid === uid);
-  const items = Object.keys(adminOrderCart).map(id => { const p=products.find(x=>x.id==id); return {id:p.id,code:p.code,name:p.name,qty:adminOrderCart[id],price:p.price}; });
+  const items = Object.keys(adminOrderCart).map(id => {
+    const p = products.find(x=>x.id==id);
+    const pr = aoPrices[id] !== undefined ? aoPrices[id] : p.price;
+    const it = {id:p.id, code:p.code, name:p.name, qty:adminOrderCart[id], price:pr};
+    if (aoPrices[id] !== undefined) { it.listPrice = p.price; it.priceEdited = true; }
+    return it;
+  });
   const total = items.reduce((s,i)=>s+i.price*i.qty, 0);
   const totalVat = items.reduce((s, i) => {
     const p = products.find(x => x.id == i.id);
@@ -1887,6 +1908,7 @@ window.submitAdminOrder = async function() {
     await updateDoc(uRef, { orderCount: (ud.orderCount||0)+1, totalSpent: (ud.totalSpent||0)+total });
   }
   adminOrderCart = {};
+  aoPrices = {};
   showToast(`${user.cafe} için sipariş oluşturuldu ✓`);
   renderAdminNewOrderUI();
 }
